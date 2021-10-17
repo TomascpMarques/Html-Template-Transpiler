@@ -4,6 +4,7 @@ O ponto inicial do programa
 
 # import sys
 # from cmd_module.cmd import parse_cmd_args
+import sys
 from cmd_module.cmd import Cmd, CmdArgument
 
 
@@ -17,9 +18,9 @@ def main():
 
     # template for sys args, besides type
 
-    arg = [CmdArgument('b', float)]
+    arg = [CmdArgument('file', str), CmdArgument('s', str)]
     cmd = Cmd(arg)
-    print(f'->{cmd.arguments=}')
+    cmd.parse_cmd_args(sys.argv)
 
 
 if __name__ == '__main__':
