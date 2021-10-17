@@ -1,0 +1,7 @@
+{
+    "python.pythonPath": "virtual_env/bin/python",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylamaEnabled": false,
+    "python.linting.banditEnabled": false
+}
