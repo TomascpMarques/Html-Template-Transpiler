@@ -6,6 +6,7 @@ O ponto inicial do programa
 # from cmd_module.cmd import parse_cmd_args
 import sys
 from cmd_module.cmd import Cmd, CmdArgument
+from cmd_module.args_disp import CMD_ARGS
 
 
 def main():
@@ -18,8 +19,7 @@ def main():
 
     # template for sys args, besides type
 
-    arg = [CmdArgument('file', str), CmdArgument('s', str)]
-    cmd = Cmd(arg)
+    cmd = Cmd(CMD_ARGS)
     cmd.parse_cmd_args(sys.argv)
 
 
