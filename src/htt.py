@@ -14,13 +14,11 @@ def main():
     Função a correr se o ficheiro
     for invocado como um script
     """
-    # some = parse_cmd_args(sys.argv)
-    # print(some)
 
     # template for sys args, besides type
 
-    cmd = Cmd(CMD_ARGS)
-    cmd.parse_cmd_args(sys.argv)
+    CMD = Cmd(CMD_ARGS)
+    CMD.parse_cmd_args(sys.argv)
 
 
 if __name__ == '__main__':

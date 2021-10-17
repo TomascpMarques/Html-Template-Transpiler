@@ -9,3 +9,4 @@ CMD_ARGS: list[CmdArgument] = [
     CmdArgument('file', str),
     CmdArgument('s', str)
 ]
+

@@ -19,7 +19,9 @@ class CmdArgument:
 
 class Cmd:
     """
-    Propiedades da cmd/interação do user com a aplicação
+    Propiedades da cmd/interação do user com a aplicação,
+    contêm os argumentos disponiveis, e valida e interage
+    com os pedidos do utilizador
     """
 
     def __init__(self, args: 'list[CmdArgument]'):
@@ -49,6 +51,7 @@ class Cmd:
                 # item[2:] -> Ignora os simbolos pre chave ex: "(--)chave"
                 if self.arg_existe(item[2:]):
                     keys_args.append(item[2:])
+                    # TODO adicionar validação com o template dos argumentos
                 else:
                     sys.exit(
                         f'Erro: O argumento fornecido <{item}> não existe nos argumentos disponíveis'
