@@ -6,7 +6,7 @@ O ponto inicial do programa
 # from cmd_module.cmd import parse_cmd_args
 import sys
 from cmd_module.cmd import Cmd, CmdArgument
-from cmd_module.args_disp import CMD_ARGS
+from cmd_module.cmd_args import CMD_ARGS
 
 
 def main():

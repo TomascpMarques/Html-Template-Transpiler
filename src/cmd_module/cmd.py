@@ -6,15 +6,7 @@ import sys
 import re
 from dataclasses import dataclass, field
 
-
-@dataclass
-class CmdArgument:
-    """
-    Define a estrutura de um possivél argumento aceitável pela aplicação/cmd
-    """
-    key: str = field(default_factory=str,)
-    value_type: type = field(default_factory=str)
-    validation_template: re.Pattern = field(default=re.compile('--\w+\s'))
+from cmd_module.cmd_args import CmdArgument
 
 
 class Cmd:
