@@ -9,12 +9,19 @@ from dataclasses import dataclass, field
 
 @dataclass
 class CmdArgument:
+    """
+    Define a estrutura de um possivél argumento aceitável pela aplicação/cmd
+    """
     key: str = field(default_factory=str)
     value_type: type = field(default_factory=str)
     validation_template: re.Pattern = field(default=re.compile('--\w+\s'))
 
 
 class Cmd:
+    """
+    Propiedades da cmd/interação do user com a aplicação
+    """
+
     def __init__(self, args: 'list[CmdArgument]'):
         self.arguments: dict[str, CmdArgument] = dict(
             (argumet.key, argumet) for argumet in args
