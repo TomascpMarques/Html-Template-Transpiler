@@ -47,7 +47,15 @@ class Cmd:
                 self.argumentos[arg]
             ) else None
 
-    def args_extrair_keys_and_vals(self, args: list[str]) -> tuple[list[str], list[str]]:
+    def args_extrair_keys_and_vals(self, args: list[str]) -> dict[str, str]:
+        """Extrai todos os argumentos e valores passados pelo user, e transforma os num novo dict do
+
+        Args:
+            args (list[str]): Lista de argumentos e valores a usar
+
+        Returns:
+            dict[str, str]: Os argumentos tratados e separados uns dos outros
+        """
         keys_args: list[str] = []
         values_args: list[str] = []
 
