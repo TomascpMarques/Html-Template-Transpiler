@@ -2,12 +2,11 @@
 O ponto inicial do programa
 """
 
-# import sys
-# from cmd_module.cmd import parse_cmd_args
+import re
 import sys
+
 from cmd_module.cmd import Cmd, CmdArgumento
 from cmd_module.cmd_args import CMD_ARGS, validar_argumento
-import re
 
 
 def main():
