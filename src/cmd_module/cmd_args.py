@@ -3,10 +3,10 @@ Contêm os argumentos disponíveis para uso pela cmd
 """
 
 
-from dataclasses import dataclass, field
 import re
-import sys
-from typing import Generic, Type, TypeVar
+from dataclasses import dataclass, field
+
+from cmd_module.cmd_erros import exit
 
 
 @dataclass
@@ -31,7 +31,11 @@ class CmdArgumento():
 
 def validar_argumento(campo: CmdArgumento, arg: str) -> any:
     if not campo.re_validacao_tipo_valor.match(arg):
-        sys.exit(campo.erro_validacao)
+        exit(
+            time_stamp=True,
+            tipo_erro="Err_Arg_Validcao",
+            menssagen=campo.erro_validacao,
+        )
     else:
         return campo.func_valida(arg) or arg
 
@@ -39,7 +43,7 @@ def validar_argumento(campo: CmdArgumento, arg: str) -> any:
 __file: CmdArgumento = CmdArgumento(
     chave='file',
     descricao_argumento='O ficheiro de template a transpilar',
-    erro_validacao='Erro: não foi possivél validar o valor para o argumento <file>',
+    erro_validacao='Não foi possivél validar o valor para o argumento <file>',
     re_validacao_tipo_valor=re.compile(
         '(\.\/|\/)(\w+\/)+\w+\.\w+|\.\/\w+\.\w+'),
 )
