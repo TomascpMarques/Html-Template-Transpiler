@@ -6,7 +6,7 @@ import sys
 import re
 from dataclasses import dataclass, field
 
-from cmd_module.cmd_args import CmdArgument
+from cmd_module.cmd_args import CmdArgumento, validar_argumento, CMD_ARGS
 
 
 class Cmd:
@@ -16,12 +16,12 @@ class Cmd:
     com os pedidos do utilizador
     """
 
-    def __init__(self, args: 'list[CmdArgument]'):
-        self.argumentos: dict[str, CmdArgument] = dict(
-            (argumet.key, argumet) for argumet in args
+    def __init__(self, **kwargs: CmdArgumento):
+        self.argumentos: dict[str, CmdArgumento] = dict(
+            (key, kwargs[key]) for key in kwargs
         )
 
-    def parse_cmd_args(self, args: 'list[str]') -> dict:
+    def parse_cmd_args(self, args: 'list[str]'):
         """Parse os argurmentos dados ao correr o script
 
         Args:
@@ -32,7 +32,7 @@ class Cmd:
         """
 
         # pre validação dos argumentos dados
-        self.args_list_pre_validation(args)
+        self.arg_list_pre_validacao(args)
 
         # retira as keys dos argumentos
         keys_args: list[str] = []
@@ -41,24 +41,31 @@ class Cmd:
         for item in args:
             if re.compile(r'--\w+').match(item) is not None:
                 # item[2:] -> Ignora os simbolos pre chave ex: "(--)chave"
+                # Verifica se o argumento fornecido pelo user existe
                 if self.arg_existe(item[2:]):
                     keys_args.append(item[2:])
-                    # TODO adicionar validação com o template dos argumentos
                 else:
+                    # Se não existir o programa para, e devolve um erro
                     sys.exit(
                         f'Erro: O argumento fornecido <{item}> não existe nos argumentos disponíveis'
                     )
             else:
                 values_args.append(item)
 
-        return dict(zip(keys_args, values_args))
+        # Atualizar o campo "argumentos" com o dicionario dos argumentos/valores extraidos
+        self.argumentos = dict(zip(keys_args, values_args))
 
-    def args_list_pre_validation(self, args: list[str]) -> list[str]:
+        # Valida os argumentos extraidos
+        for arg in self.argumentos:
+            sys.exit(f'{CMD_ARGS[arg].erro_validacao}') if not validar_argumento(
+                CMD_ARGS[arg], self.argumentos[arg]) else None
+
+    def arg_list_pre_validacao(self, args: list[str]) -> list[str]:
         # Ignora o primeiro elemento dos argumentos - o nome/path do ficheiro
         del args[0]
 
         # Verifica se existem argumentos, retorna "help" do script
-        if args.__len__() < 3:
+        if args.__len__() < 2:
             # Temporário
             sys.exit(
                 'O programa deve ser chamado com pelo menos 1 argumento e valor')
