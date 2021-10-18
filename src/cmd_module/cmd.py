@@ -2,10 +2,9 @@
 Modulo relativo à interação do user com o programa através do terminal
 """
 
-import sys
 import re
-from dataclasses import dataclass, field
 
+from cmd_module.cmd_erros import exit
 from cmd_module.cmd_args import CmdArgumento, validar_argumento, CMD_ARGS
 
 
@@ -34,10 +33,25 @@ class Cmd:
         # pre validação dos argumentos dados
         self.arg_list_pre_validacao(args)
 
-        # retira as keys dos argumentos
+        # Atualizar o campo "argumentos" com o dicionario dos argumentos/valores extraidos
+        self.argumentos = self.args_extrair_keys_and_vals(args)
+
+        # Valida os argumentos extraidos
+        for arg in self.argumentos:
+            exit(
+                menssagen=f'{CMD_ARGS[arg].erro_validacao}',
+                time_stamp=True,
+                tipo_erro='Erro_Arg_Validacao'
+            ) if not validar_argumento(
+                CMD_ARGS[arg],
+                self.argumentos[arg]
+            ) else None
+
+    def args_extrair_keys_and_vals(self, args: list[str]) -> tuple[list[str], list[str]]:
         keys_args: list[str] = []
         values_args: list[str] = []
 
+        # retira as keys dos argumentos
         for item in args:
             if re.compile(r'--\w+').match(item) is not None:
                 # item[2:] -> Ignora os simbolos pre chave ex: "(--)chave"
@@ -46,19 +60,16 @@ class Cmd:
                     keys_args.append(item[2:])
                 else:
                     # Se não existir o programa para, e devolve um erro
-                    sys.exit(
-                        f'Erro: O argumento fornecido <{item}> não existe nos argumentos disponíveis'
+                    exit(
+                        tipo_erro='Erro_Arg_Fornecido',
+                        time_stamp=True,
+                        menssagen=f'O argumento fornecido, <{item}> não existe nos argumentos disponíveis',
                     )
             else:
                 values_args.append(item)
 
-        # Atualizar o campo "argumentos" com o dicionario dos argumentos/valores extraidos
-        self.argumentos = dict(zip(keys_args, values_args))
-
-        # Valida os argumentos extraidos
-        for arg in self.argumentos:
-            sys.exit(f'{CMD_ARGS[arg].erro_validacao}') if not validar_argumento(
-                CMD_ARGS[arg], self.argumentos[arg]) else None
+        # retorna o dicionario dos argumentos/valores extraidos
+        return dict(zip(keys_args, values_args))
 
     def arg_list_pre_validacao(self, args: list[str]) -> list[str]:
         # Ignora o primeiro elemento dos argumentos - o nome/path do ficheiro
@@ -66,14 +77,19 @@ class Cmd:
 
         # Verifica se existem argumentos, retorna "help" do script
         if args.__len__() < 2:
-            # Temporário
-            sys.exit(
-                'O programa deve ser chamado com pelo menos 1 argumento e valor')
+            exit(
+                time_stamp=True,
+                tipo_erro='Erro_Num_Args',
+                menssagen='O programa deve ser chamado com pelo menos 1 argumento e valor',
+            )
 
         # Verifica argumentos sem valor, mas defenidos
         if args.__len__() % 2 != 0:
-            sys.exit(
-                'Erro: Todos os argumentos chamados devem ter valores associados')
+            exit(
+                tipo_erro='Erro_Arg_Valrs',
+                time_stamp=True,
+                menssagen='Todos os argumentos chamados devem ter valores associados',
+            )
 
         return args
 
