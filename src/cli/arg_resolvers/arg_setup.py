@@ -1,18 +1,18 @@
 """
-Setup e criação de argumentos aceitaiveis pela cmd
+Setup e criação de argumentos aceitaiveis pela cli
 """
 
 import re
 from dataclasses import dataclass, field
 from typing import Callable
 
-from cmd_module.cmd_erros import erro_exit
+from cli.erros import erro_exit
 
 
 @dataclass
-class CmdArgumento():
+class CliArgumento():
     """
-    Define a estrutura de um possivél argumento aceitável pela aplicação/cmd
+    Define a estrutura de um possivél argumento aceitável pela aplicação/cli
     """
     func_validacao: Callable = field(default=lambda x: x)
     chave: str = field(
@@ -29,7 +29,7 @@ class CmdArgumento():
     )
 
 
-def validar_argumento(campo: CmdArgumento, arg: str) -> str | None:
+def validar_argumento(campo: CliArgumento, arg: str) -> str | None:
     """Valida um argumneto contra o seu regex de validação
 
     Returns:

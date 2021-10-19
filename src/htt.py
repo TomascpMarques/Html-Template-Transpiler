@@ -4,8 +4,8 @@ O ponto inicial do programa
 
 import sys
 
-from cmd_module.cmd import CmdListner
-from cmd_module.cmd_args import CMD_ARGS
+from cli.cli import CliListner
+from cli.args import CLI_ARGS
 
 
 def main():
@@ -16,9 +16,9 @@ def main():
 
     # template for sys args, besides type
 
-    running_cmd = CmdListner(**CMD_ARGS)
-    running_cmd.parse_cmd_args(sys.argv)
-    print(f'{running_cmd.argumentos=}')
+    running_cli = CliListner(**CLI_ARGS)
+    running_cli.parse_cli_args(sys.argv)
+    print(f'{running_cli.argumentos=}')
 
 
 if __name__ == '__main__':

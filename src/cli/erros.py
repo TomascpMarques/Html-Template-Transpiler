@@ -19,4 +19,4 @@ def erro_exit(menssagen: str, tipo_erro: str = "Erro", time_stamp: bool = False)
     )
 
 
-# CMD_ERROS: dict = {}
+# CLI_ERROS: dict = {}

@@ -4,24 +4,24 @@ Modulo relativo à interação do user com o programa através do terminal
 
 import re
 
-from cmd_module.cmd_args import CMD_ARGS
-from cmd_module.cmd_arg_resolvers.cmd_arg_setup import CmdArgumento, validar_argumento
-from cmd_module.cmd_erros import erro_exit
+from cli.args import CLI_ARGS
+from cli.arg_resolvers.arg_setup import CliArgumento, validar_argumento
+from cli.erros import erro_exit
 
 
-class CmdListner:
+class CliListner:
     """
-    Propiedades da cmd/interação do user com a aplicação,
+    Propiedades da cli/interação do user com a aplicação,
     contêm os argumentos disponiveis, e valida e interage
     com os pedidos do utilizador
     """
 
-    def __init__(self, **kwargs: CmdArgumento):
-        self.argumentos: dict[str, CmdArgumento] = dict(
+    def __init__(self, **kwargs: CliArgumento):
+        self.argumentos: dict[str, CliArgumento] = dict(
             (key, val) for (key, val) in kwargs.items()
         )
 
-    def parse_cmd_args(self, args: 'list[str]'):
+    def parse_cli_args(self, args: 'list[str]'):
         """Parse os argurmentos dados ao correr o script
 
         Args:
@@ -40,11 +40,11 @@ class CmdListner:
         # Valida os argumentos extraidos
         for arg in self.argumentos:
             if not validar_argumento(
-                CMD_ARGS[arg],
+                CLI_ARGS[arg],
                 self.argumentos[arg]
             ):
                 erro_exit(
-                    menssagen=f'{CMD_ARGS[arg].erro_validacao}',
+                    menssagen=f'{CLI_ARGS[arg].erro_validacao}',
                     time_stamp=True,
                     tipo_erro='Erro_Arg_Validacao'
                 )

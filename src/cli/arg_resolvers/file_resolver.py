@@ -4,10 +4,10 @@ Desenvolvimento e resolving do argumento file
 
 import re
 
-from cmd_module.cmd_arg_resolvers.cmd_arg_setup import CmdArgumento
+from cli.arg_resolvers.arg_setup import CliArgumento
 
 
-file: CmdArgumento = CmdArgumento(
+file: CliArgumento = CliArgumento(
     chave='file',
     descricao_argumento='O ficheiro de template a transpilar',
     erro_validacao='Não foi possivél validar o valor para o argumento <file>',
