@@ -14,10 +14,8 @@ def main():
     for invocado como um script
     """
 
-    running_cli = Cli(**CLI_ARGS)
-    running_cli.parse_cli_args(sys.argv)
-
-    print(f'{running_cli.argumentos=}')
+    running_cli = Cli(sys.argv, **CLI_ARGS)
+    running_cli.run()
 
 
 if __name__ == '__main__':
