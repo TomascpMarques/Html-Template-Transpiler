@@ -3,8 +3,8 @@ Setup e criação de argumentos aceitaiveis pela cli
 """
 
 import re
-from dataclasses import dataclass, field
 from typing import Callable
+from dataclasses import dataclass, field
 
 from cli.erros import erro_exit
 
