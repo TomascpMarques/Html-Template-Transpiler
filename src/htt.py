@@ -4,7 +4,7 @@ O ponto inicial do programa
 
 import sys
 
-from cli.cli import CliListner
+from cli.cli import Cli
 from cli.args import CLI_ARGS
 
 
@@ -14,10 +14,9 @@ def main():
     for invocado como um script
     """
 
-    # template for sys args, besides type
-
-    running_cli = CliListner(**CLI_ARGS)
+    running_cli = Cli(**CLI_ARGS)
     running_cli.parse_cli_args(sys.argv)
+
     print(f'{running_cli.argumentos=}')
 
 

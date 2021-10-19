@@ -9,7 +9,7 @@ from cli.arg_resolvers.arg_setup import CliArgumento, validar_argumento
 from cli.erros import erro_exit
 
 
-class CliListner:
+class Cli:
     """
     Propiedades da cli/interação do user com a aplicação,
     contêm os argumentos disponiveis, e valida e interage

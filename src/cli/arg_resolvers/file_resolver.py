@@ -4,8 +4,8 @@ Desenvolvimento e resolving do argumento file
 
 import re
 
-from cli.arg_resolvers.arg_setup import CliArgumento
 
+from cli.arg_resolvers.arg_setup import CliArgumento
 
 file: CliArgumento = CliArgumento(
     chave='file',
