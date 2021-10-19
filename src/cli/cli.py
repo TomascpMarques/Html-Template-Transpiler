@@ -4,8 +4,8 @@ Modulo relativo à interação do user com o programa através do terminal
 
 import re
 
-from cli.args import CLI_ARGS
 from cli.arg_resolvers.arg_setup import CliArgumento, validar_argumento
+from cli.args import CLI_ARGS
 from cli.erros import erro_exit
 
 
@@ -16,12 +16,22 @@ class Cli:
     com os pedidos do utilizador
     """
 
-    def __init__(self, **kwargs: CliArgumento):
+    def __init__(self, args: list[str], **kwargs: CliArgumento):
+        # Toma os argumentos disponiveis
         self.argumentos: dict[str, CliArgumento] = dict(
             (key, val) for (key, val) in kwargs.items()
         )
+        # valida os argumentos da cli contro os disponiveis
+        self.__parse_cli_args(args)
 
-    def parse_cli_args(self, args: 'list[str]'):
+    def run(self) -> None:
+        """
+        Corre o programa com os argumentos fornecidos
+        """
+        for arg, val in self.argumentos.items():
+            print(f'{arg, val}')
+
+    def __parse_cli_args(self, args: list[str]):
         """Parse os argurmentos dados ao correr o script
 
         Args:
@@ -37,6 +47,13 @@ class Cli:
         # Atualizar o campo "argumentos" com o dicionario dos argumentos/valores extraidos
         self.argumentos = self.args_extrair_keys_and_vals(args)
 
+        # Valida os argumentos extraidos de "args"
+        self.validar_args_extraidos()
+
+    def validar_args_extraidos(self) -> None:
+        """
+        Valida os argumentos extraidos, contra os argumentos já defenidos
+        """
         # Valida os argumentos extraidos
         for arg in self.argumentos:
             if not validar_argumento(
