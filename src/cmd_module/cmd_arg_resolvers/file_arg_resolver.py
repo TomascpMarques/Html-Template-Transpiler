@@ -4,7 +4,7 @@ Desenvolvimento e resolving do argumento file
 
 import re
 
-from src.cmd_module.cmd_arg_resolvers.cmd_arg_setup import CmdArgumento
+from cmd_module.cmd_arg_resolvers.cmd_arg_setup import CmdArgumento
 
 
 file: CmdArgumento = CmdArgumento(

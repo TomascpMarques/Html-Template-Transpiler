@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Callable
 
-from src.cmd_module.cmd_erros import erro_exit
+from cmd_module.cmd_erros import erro_exit
 
 
 @dataclass

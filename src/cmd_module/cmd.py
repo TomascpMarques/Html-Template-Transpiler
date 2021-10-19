@@ -4,9 +4,9 @@ Modulo relativo à interação do user com o programa através do terminal
 
 import re
 
-from src.cmd_module.cmd_args import CMD_ARGS
-from src.cmd_module.cmd_arg_resolvers.cmd_arg_setup import CmdArgumento, validar_argumento
-from src.cmd_module.cmd_erros import erro_exit
+from cmd_module.cmd_args import CMD_ARGS
+from cmd_module.cmd_arg_resolvers.cmd_arg_setup import CmdArgumento, validar_argumento
+from cmd_module.cmd_erros import erro_exit
 
 
 class CmdListner:
