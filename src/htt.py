@@ -2,11 +2,10 @@
 O ponto inicial do programa
 """
 
-import re
 import sys
 
-from cmd_module.cmd import Cmd, CmdArgumento
-from cmd_module.cmd_args import CMD_ARGS, validar_argumento
+from cmd_module.cmd import CmdListner
+from cmd_module.cmd_args import CMD_ARGS
 
 
 def main():
@@ -17,18 +16,9 @@ def main():
 
     # template for sys args, besides type
 
-    CMD = Cmd(**CMD_ARGS)
-    CMD.parse_cmd_args(sys.argv)
-    print(f'{CMD.argumentos=}')
-
-    t = CmdArgumento(
-        chave='t',
-        func_valida=lambda x: int(x),
-        re_validacao_tipo_valor=re.compile('^\d+$')
-    )
-
-    x = validar_argumento(t, '132')
-    print(x, type(x))
+    running_cmd = CmdListner(**CMD_ARGS)
+    running_cmd.parse_cmd_args(sys.argv)
+    print(f'{running_cmd.argumentos=}')
 
 
 if __name__ == '__main__':

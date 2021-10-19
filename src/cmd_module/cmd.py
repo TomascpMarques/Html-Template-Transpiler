@@ -4,11 +4,12 @@ Modulo relativo à interação do user com o programa através do terminal
 
 import re
 
-from cmd_module.cmd_erros import exit
-from cmd_module.cmd_args import CmdArgumento, validar_argumento, CMD_ARGS
+from src.cmd_module.cmd_args import CMD_ARGS
+from src.cmd_module.cmd_arg_resolvers.cmd_arg_setup import CmdArgumento, validar_argumento
+from src.cmd_module.cmd_erros import erro_exit
 
 
-class Cmd:
+class CmdListner:
     """
     Propiedades da cmd/interação do user com a aplicação,
     contêm os argumentos disponiveis, e valida e interage
@@ -17,7 +18,7 @@ class Cmd:
 
     def __init__(self, **kwargs: CmdArgumento):
         self.argumentos: dict[str, CmdArgumento] = dict(
-            (key, kwargs[key]) for key in kwargs
+            (key, val) for (key, val) in kwargs.items()
         )
 
     def parse_cmd_args(self, args: 'list[str]'):
@@ -38,14 +39,17 @@ class Cmd:
 
         # Valida os argumentos extraidos
         for arg in self.argumentos:
-            exit(
-                menssagen=f'{CMD_ARGS[arg].erro_validacao}',
-                time_stamp=True,
-                tipo_erro='Erro_Arg_Validacao'
-            ) if not validar_argumento(
+            if not validar_argumento(
                 CMD_ARGS[arg],
                 self.argumentos[arg]
-            ) else None
+            ):
+                erro_exit(
+                    menssagen=f'{CMD_ARGS[arg].erro_validacao}',
+                    time_stamp=True,
+                    tipo_erro='Erro_Arg_Validacao'
+                )
+            else:
+                pass
 
     def args_extrair_keys_and_vals(self, args: list[str]) -> dict[str, str]:
         """Extrai todos os argumentos e valores passados pelo user, e transforma os num novo dict do
@@ -68,10 +72,10 @@ class Cmd:
                     keys_args.append(item[2:])
                 else:
                     # Se não existir o programa para, e devolve um erro
-                    exit(
+                    erro_exit(
                         tipo_erro='Erro_Arg_Fornecido',
                         time_stamp=True,
-                        menssagen=f'O argumento fornecido, <{item}> não existe nos argumentos disponíveis',
+                        menssagen=f'O argumento, <{item}> não existe nos argumentos disponíveis',
                     )
             else:
                 values_args.append(item)
@@ -80,12 +84,20 @@ class Cmd:
         return dict(zip(keys_args, values_args))
 
     def arg_list_pre_validacao(self, args: list[str]) -> list[str]:
+        """Pre valida a lista de argumentos
+
+        Args:
+            args (list[str]): Lista de argumentos a validar
+
+        Returns:
+            list[str]: Lista de argumentos a tratada e validada
+        """
         # Ignora o primeiro elemento dos argumentos - o nome/path do ficheiro
         del args[0]
 
         # Verifica se existem argumentos, retorna "help" do script
         if args.__len__() < 2:
-            exit(
+            erro_exit(
                 time_stamp=True,
                 tipo_erro='Erro_Num_Args',
                 menssagen='O programa deve ser chamado com pelo menos 1 argumento e valor',
@@ -93,7 +105,7 @@ class Cmd:
 
         # Verifica argumentos sem valor, mas defenidos
         if args.__len__() % 2 != 0:
-            exit(
+            erro_exit(
                 tipo_erro='Erro_Arg_Valrs',
                 time_stamp=True,
                 menssagen='Todos os argumentos chamados devem ter valores associados',
