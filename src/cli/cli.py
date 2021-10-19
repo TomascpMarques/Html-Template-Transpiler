@@ -5,7 +5,7 @@ Modulo relativo à interação do user com o programa através do terminal
 import re
 
 from cli.arg_resolvers.arg_setup import CliArgumento, validar_argumento
-from cli.args import CLI_ARGS
+from cli.args import CLI_ARGS, resolver_cli_args
 from cli.erros import erro_exit
 
 
@@ -29,7 +29,7 @@ class Cli:
         Corre o programa com os argumentos fornecidos
         """
         for arg, val in self.argumentos.items():
-            print(f'{arg, val}')
+            resolver_cli_args(arg, val)
 
     def __parse_cli_args(self, args: list[str]):
         """Parse os argurmentos dados ao correr o script
