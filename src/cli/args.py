@@ -2,13 +2,43 @@
 Contêm os argumentos disponíveis para uso pela cli
 """
 
+import re
 from cli.arg_resolvers.arg_setup import CliArgumento
-from cli.arg_resolvers.file_resolver import file as FILE_ARG
+from cli.arg_resolvers.file_resolver import file_arg
+from cli.erros import erro_exit
 
 
-CLI_ARGS: dict[str, CliArgumento] = {
-    'file': FILE_ARG,
-}
+def run_arg_help(arg: str) -> None:
+    """
+    Fornece ajuda sobre um ou mais argumentos
+
+    Args:
+        arg (str): Argumento/s a dar info sobre
+    """
+    if arg not in CLI_ARGS.keys():
+        erro_exit(
+            menssagen="O argumento dado não existe",
+            time_stamp=True,
+            tipo_erro="ArgInvalErr"
+        )
+    ajuda_arg = CLI_ARGS[arg].mensagem_ajuda
+    desc_arg = CLI_ARGS[arg].descricao_argumento
+    print(
+        f'Ajuda:\n{ajuda_arg}\n{"~ "*(len(ajuda_arg)//4)}\nDescrição do argumento:\n -> {desc_arg}'
+    )
+
+
+help_mens_ajuda: str = '* Parametro: <help> | Exemplo: --help file'
+
+help_arg: CliArgumento = CliArgumento(
+    chave='help',
+    run=run_arg_help,
+    descricao_argumento='Argumento de ajuda com um ou mais argumentos',
+    erro_validacao='O valor deve ser uma key de argumento válida',
+    mensagem_ajuda=help_mens_ajuda,
+    re_validacao_tipo_valor=re.compile('[a-z]+'),
+    func_validacao=lambda x: x.isalpha()
+)
 
 
 def resolver_cli_args(arg: str, param: any) -> None:
@@ -20,3 +50,9 @@ def resolver_cli_args(arg: str, param: any) -> None:
         param (any): Parametro a fornecer ao argumento
     """
     CLI_ARGS[arg].run(param)
+
+
+CLI_ARGS: dict[str, CliArgumento] = {
+    'file': file_arg,
+    'help': help_arg,
+}
