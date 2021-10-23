@@ -4,9 +4,9 @@ Modulo relativo à interação do user com o programa através do terminal
 
 import re
 
-from cli.arg_resolvers.arg_setup import CliArgumento, validar_argumento
-from cli.args import CLI_ARGS, resolver_cli_args
 from cli.erros import erro_exit
+from cli.arg_setup import CliArgumento, validar_argumento
+from cli_args.args import CLI_ARGS, resolver_cli_args
 
 
 class Cli:

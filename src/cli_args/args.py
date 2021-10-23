@@ -3,9 +3,20 @@ Contêm os argumentos disponíveis para uso pela cli
 """
 
 import re
-from cli.arg_resolvers.arg_setup import CliArgumento
-from cli.arg_resolvers.file_resolver import file_arg
+from cli.arg_setup import CliArgumento
 from cli.erros import erro_exit
+from cli_args.file_resolver import file_arg
+
+
+def resolver_cli_args(arg: str, param: any) -> None:
+    """
+    Resolve o argumento da cli especificado com o param dados
+
+    Args:
+        arg (str): Argumento a ser resolvidores
+        param (any): Parametro a fornecer ao argumento
+    """
+    CLI_ARGS[arg].run(param)
 
 
 def run_arg_help(arg: str) -> None:
@@ -39,17 +50,6 @@ help_arg: CliArgumento = CliArgumento(
     re_validacao_tipo_valor=re.compile('[a-z]+'),
     func_validacao=lambda x: x.isalpha()
 )
-
-
-def resolver_cli_args(arg: str, param: any) -> None:
-    """
-    Resolve o argumento da cli especificado com o param dados
-
-    Args:
-        arg (str): Argumento a ser resolvidores
-        param (any): Parametro a fornecer ao argumento
-    """
-    CLI_ARGS[arg].run(param)
 
 
 CLI_ARGS: dict[str, CliArgumento] = {

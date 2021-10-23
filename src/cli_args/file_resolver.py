@@ -4,7 +4,7 @@ Desenvolvimento e resolving do argumento file
 
 import re
 
-from cli.arg_resolvers.arg_setup import CliArgumento
+from cli.arg_setup import CliArgumento
 
 
 def run_arg_file(path_ficheiro: str) -> None:

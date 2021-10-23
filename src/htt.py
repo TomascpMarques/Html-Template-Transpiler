@@ -5,7 +5,7 @@ O ponto inicial do programa
 import sys
 
 from cli.cli import Cli
-from cli.args import CLI_ARGS
+from cli_args.args import CLI_ARGS
 
 
 def main():
