@@ -32,6 +32,7 @@ class CliArgumento():
     erro_validacao: str = field(
         default='Erro: Não foi possível validar o valor fornecido para um ou mais argumentos'
     )
+    mensagem_ajuda: str = field(default="O campo pode tomar valor x e y")
 
 
 def validar_argumento(campo: CliArgumento, arg: str) -> str | None:
