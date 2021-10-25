@@ -26,6 +26,13 @@ def run_arg_help(arg: str) -> None:
     Args:
         arg (str): Argumento/s a dar info sobre
     """
+    if arg == 'all':
+        print('Help:')
+        for arg in CLI_ARGS:
+            print(
+                f' --{arg}:{" "*2}{CLI_ARGS.get(arg).descricao_argumento}')
+        return
+
     if arg not in CLI_ARGS.keys():
         erro_exit(
             menssagen="O argumento dado não existe",

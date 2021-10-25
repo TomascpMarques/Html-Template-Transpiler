@@ -8,11 +8,11 @@ from cli.arg_setup import CliArgumento
 from file_handeling.handler import FileHandler
 
 
-def run_arg_files(path_ficheiro: str) -> None:
+def run_arg_files(path_ficheiros: str) -> None:
     """
     some some here
     """
-    some = FileHandler(path_ficheiro)
+    some = FileHandler(path_ficheiros)
     print(some.resolver_ficheiro('.httconfig'))
 
 
