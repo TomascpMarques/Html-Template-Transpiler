@@ -17,7 +17,7 @@ import sys
 from cli.erros import erro_exit
 
 
-FILE_EXTENSIONS: list[str] = [r'.htt', r'.httconfig']
+FILE_EXTENSIONS: list[str] = ['.htt', '.httconfig']
 
 
 class FileHandler:
@@ -64,27 +64,55 @@ class FileHandler:
         """
         with open(
             os.path.join(self.caminho, nome),
-            'r', encoding=sys.getdefaultencoding()
-        ) as file:
-            return list(map(lambda x: x.replace('\n', ''), file.readlines()))
+            'r', encoding=sys.getfilesystemencoding()
+        ) as ficheiro:
+            return list(map(lambda x: x.replace('\n', ''), ficheiro.readlines()))
 
+    def ficheiro_dir_entry(self, nome: str) -> os.DirEntry | None:
+        """
+        Devolve a dir entry do ficheiro pedidos
 
-# def buscar_configs(self):
-#         """
-#         Busca a os.DirEntry configs para o projeto e a sua transpilação
+        Returns:
+            os.DirEntry | None: A dir entry especificada ou None
+        """
+        if nome not in self.ficheiros.keys():
+            return None
+        return self.ficheiros.get(nome)
 
-#         Returns:
-#             os.DirEntry: O ficheiro com as configs em formato de estrutura
-#         """
-#         self.configs = self.ficheiros.get('.httconfig')
-#         return self
+    def ficheiros_dir_entry(self, *nomes: str) -> list[os.DirEntry]:
+        """
+        Devolve as dir entrys dos ficheiro pedidos
 
-#     def ler_configs(self) -> list[str]:
-#         """
-#         Lê as configs para o projeto e devolve o conteudo das mesmas
+        Returns:
+            list[os.DirEntry]: Lista das dir entries dso ficheiros pedidos
+        """
+        lista_ficheiros: list[os.DirEntry] = []
+        for nome in nomes:
+            if nome not in self.ficheiros.keys():
+                return []
+            lista_ficheiros.append(self.ficheiros.get(nome))
+        return lista_ficheiros
 
-#         Returns:
-#             list[str]: Conteudo das configs para o projeto
-#         """
-#         with open(self.configs.name, 'r', encoding=sys.getfilesystemencoding()) as file:
-#             return file.readlines()
+    def dump_ficheiros(self, nomes: list[str]) -> list[list[str]]:
+        """
+        Devolve o conteudo dos ficheiros pedidos
+
+        Args:
+            nomes (list[str]): nomes dos ficheiros a fazer dump
+
+        Returns:
+            list[list[str]]: O conteudo dos ficheiros, separados por linhas
+        """
+        lista_conteudo: list[list[str]] = [[]]
+        for nome in nomes:
+            with open(
+                os.path.join(self.caminho, nome),
+                'r', encoding=sys.getfilesystemencoding()
+            ) as ficheiro:
+                lista_conteudo.append(
+                    [map(
+                        lambda x: x.replace('\n', ''),
+                        ficheiro.readlines()
+                    )]
+                )
+        return lista_conteudo
