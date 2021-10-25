@@ -5,7 +5,7 @@ Contêm os argumentos disponíveis para uso pela cli
 import re
 from cli.arg_setup import CliArgumento
 from cli.erros import erro_exit
-from cli_args.file_resolver import file_arg
+from cli_args.file_resolver import files_arg
 
 
 def resolver_cli_args(arg: str, param: any) -> None:
@@ -53,6 +53,6 @@ help_arg: CliArgumento = CliArgumento(
 
 
 CLI_ARGS: dict[str, CliArgumento] = {
-    'file': file_arg,
+    'files': files_arg,
     'help': help_arg,
 }

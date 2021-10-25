@@ -5,31 +5,28 @@ Desenvolvimento e resolving do argumento file
 import re
 
 from cli.arg_setup import CliArgumento
+from file_handeling.handler import FileHandler
 
 
-def run_arg_file(path_ficheiro: str) -> None:
+def run_arg_files(path_ficheiro: str) -> None:
     """
     some some here
     """
-    with open(
-        file=path_ficheiro,
-        mode='r',
-        encoding='utf-8'
-    ) as ficheiro:
-        print(f'{ficheiro.read()=}')
+    some = FileHandler(path_ficheiro)
+    print(some.resolver_ficheiro('.httconfig'))
 
 
-file_mens_ajuda: str = \
-    '* Parametro: <file> | Exemplo: --file ./alguma/pasta/ficheiro.txt\n\
-O argumento têm que apontar para um ficheiro/diretoria válida'
+files_mens_ajuda: str = \
+    '* Parametro: <files> | Exemplo: --files ./alguma/pasta\n\
+O argumento têm que apontar para uma pasta válida'
 
-file_arg: CliArgumento = CliArgumento(
-    chave='file',
-    run=run_arg_file,
+files_arg: CliArgumento = CliArgumento(
+    chave='files',
+    run=run_arg_files,
     descricao_argumento='O ficheiro de template a transpilar',
     erro_validacao='Não foi possivél validar o valor para o argumento <file>',
-    mensagem_ajuda=file_mens_ajuda,
+    mensagem_ajuda=files_mens_ajuda,
     re_validacao_tipo_valor=re.compile(
-        r'(\.\/|\/|~\/)(\w+\/)+\w+\.\w+|\.\/\w+\.\w+'
+        r'(^\.\.\/|^\.\/|^\.)|(^\.\/|^\.|^~\/|^\/)(\w+\/)+'
     ),
 )
