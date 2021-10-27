@@ -6,14 +6,16 @@ import re
 
 from cli.arg_setup import CliArgumento
 from file_handeling.handler import FileHandler
+from file_templating.template import Templater
 
 
 def run_arg_files(path_ficheiros: str) -> None:
     """
     some some here
     """
-    some = FileHandler(path_ficheiros)
+    some = FileHandler(path=path_ficheiros)
     print(some.resolver_ficheiro('.httconfig'))
+    Templater(path=path_ficheiros)
 
 
 files_mens_ajuda: str = \

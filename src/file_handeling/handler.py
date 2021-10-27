@@ -25,20 +25,17 @@ class FileHandler:
     Handles file rading/writting, também ficheiros dentro de pastas
     """
 
-    def __init__(self, caminho: str):
-        self.caminho: str = caminho
+    def __init__(self, path: str):
+        self.caminho: str = path
 
         self.ficheiros: dict[str, os.DirEntry] = dict(
-            (entrada.name, entrada) for entrada in os.scandir(caminho)
+            (entrada.name, entrada) for entrada in os.scandir(path)
             if (
                 entrada.is_file()
                 and entrada.name[entrada.name.index('.'):]
                 in FILE_EXTENSIONS
             ) or entrada.is_dir()
         )
-
-        for _, entry in self.ficheiros.items():
-            print(f'{entry.path}')
 
         if not self.ficheiros.__len__():
             erro_exit(
@@ -58,7 +55,7 @@ class FileHandler:
         """
         return self.ficheiros.keys()
 
-    def resolver_ficheiro(self, caminho: str) -> list[str]:
+    def resolver_ficheiro(self, path: str) -> str:
         """
         Devolve o conteudo do ficheiro pedido
 
@@ -68,23 +65,23 @@ class FileHandler:
         Returns:
             list[str]: Conteudos do ficheiro em linhas
         """
-        print(f'{self.ficheiros.get(caminho).path}')
+        print(f'{self.ficheiros.get(path).path}')
         with open(
-            os.path.join(self.caminho, caminho),
+            os.path.join(self.caminho, path),
             'r', encoding=sys.getfilesystemencoding()
         ) as ficheiro:
-            return list(map(lambda x: x.replace('\n', ''), ficheiro.readlines()))
+            return ficheiro.read()
 
-    def ficheiro_dir_entry(self, caminho: str) -> os.DirEntry | None:
+    def ficheiro_dir_entry(self, path: str) -> os.DirEntry | None:
         """
         Devolve a dir entry do ficheiro pedidos
 
         Returns:
             os.DirEntry | None: A dir entry especificada ou None
         """
-        if caminho not in self.ficheiros.keys():
+        if path not in self.ficheiros.keys():
             return None
-        return self.ficheiros.get(caminho)
+        return self.ficheiros.get(path)
 
     def ficheiros_dir_entry(self, *caminhos: str) -> list[os.DirEntry]:
         """
@@ -100,7 +97,7 @@ class FileHandler:
             lista_ficheiros.append(self.ficheiros.get(nome))
         return lista_ficheiros
 
-    def dump_ficheiros(self, *caminhos: str) -> list[list[str]]:
+    def dump_ficheiros(self, *caminhos: str) -> str:
         """
         Devolve o conteudo dos ficheiros pedidos
 
@@ -110,7 +107,7 @@ class FileHandler:
         Returns:
             list[list[str]]: O conteudo dos ficheiros, separados por linhas
         """
-        lista_conteudo: list[list[str]] = []
+        conteudo: str = ''
         for nome in caminhos:
             try:
                 with open(
@@ -118,9 +115,7 @@ class FileHandler:
                     'r',
                     encoding=sys.getfilesystemencoding()
                 ) as file:
-                    lista_conteudo.append(
-                        file.readlines()
-                    )
+                    conteudo = file.readlines()
             except FileNotFoundError:
                 erro_exit(
                     time_stamp=True,
@@ -133,4 +128,4 @@ class FileHandler:
                     tipo_erro='IsADirectoryError',
                     menssagen=f'O ficheiro <{nome}> é uma diretoria, não um ficheiro'
                 )
-        return lista_conteudo
+        return conteudo
