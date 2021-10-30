@@ -11,7 +11,10 @@ TEMPLATE_CONFIG: str = '.httconfig'
 
 class Templater(FileHandler):
     """
-    Some Some
+    Cria um objeto Templater para lidar com o templating e transpilação do projeto.
+
+    Args:
+        FileHandler ([type]): Objeto que gere ficheiros e pastas
     """
 
     def __init__(self, path: str) -> None:

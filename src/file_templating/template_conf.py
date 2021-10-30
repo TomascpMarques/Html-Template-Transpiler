@@ -19,10 +19,10 @@ class Configs:
         # End Configs Esperadas
 
         self.parse_config(conteudo_ficheiro=conteudo)
-        for some in self.valores_config():
+        for some in self.config_opcoes():
             print(f'{self.__getattribute__(some)=}, {some=}')
 
-    def valores_config(self) -> list[str]:
+    def config_opcoes(self) -> list[str]:
         """
         Retorna os valores de config existentes na class
 
@@ -34,6 +34,19 @@ class Configs:
                 lambda x: x.replace('__', ''),
                 self.__dict__
             )
+        )
+
+    def config_valores(self) -> list[any]:
+        """
+        Retorna uma lista só com todos os valores
+        de todas as opções de config_opcoes
+
+        Returns:
+            list[any]: Valores de configuração
+        """
+        return list(
+            self.__getattribute__(valor)
+            for valor in self.config_opcoes()
         )
 
     def parse_config(self, conteudo_ficheiro: str) -> None:
@@ -119,8 +132,21 @@ class Configs:
 
 class TemplateConfig:
     """
-    Some Some
+    Centraliza e manipula as configurações do projeto
     """
 
     def __init__(self, conf_file: str):
-        self.conf: Configs = Configs(conf_file)
+        self._config_obj: Configs = Configs(conf_file)
+        self.configs: dict[str, any] = self.configuracao_template()
+
+    def configuracao_template(self) -> dict[str, any]:
+        """
+        Retorna um dicionario com a configuração do template
+
+        Returns:
+            dict[str, any]: Valores de configuração ligados por key/val
+        """
+        return zip(
+            self._config_obj.config_opcoes(),
+            self._config_obj.config_valores()
+        )

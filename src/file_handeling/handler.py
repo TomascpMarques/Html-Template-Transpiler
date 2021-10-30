@@ -8,6 +8,8 @@ Lida com ficheiros e as suas pastas
 #     |_ .httconfig
 #     |_ file1.htt
 #     |_ file2.htt
+#     |_ /pasta_2
+#         |_ file3.htt
 # """
 
 
@@ -22,7 +24,8 @@ FILE_EXTENSIONS: list[str] = ['.htt', '.httconfig']
 
 class FileHandler:
     """
-    Handles file rading/writting, também ficheiros dentro de pastas
+    Esta classe gere a utilização de ficheiros e pastas de acordo com as necessidades
+    do programa
     """
 
     def __init__(self, path: str):

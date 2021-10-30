@@ -11,7 +11,10 @@ from file_templating.template import Templater
 
 def run_arg_files(path_ficheiros: str) -> None:
     """
-    some some here
+    Resolve o argumento para lidar com os ficheiros dados
+
+    Args:
+        path_ficheiros (str): Caminho até à pasta que fornece os ficheiros alvo
     """
     some = FileHandler(path=path_ficheiros)
     print(some.resolver_ficheiro('.httconfig'))
