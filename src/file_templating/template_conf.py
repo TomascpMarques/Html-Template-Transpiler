@@ -13,11 +13,14 @@ class Configs:
 
     def __init__(self, conteudo: str):
         # Configs Esperadas
-        self.fontes: str = ''
+        self.fontes: dict[str, str] = {}
         self.tema: str = ''
+        self.estilo: str = ''
         # End Configs Esperadas
 
-        self.config_parse(conteudo_ficheiro=conteudo)
+        self.parse_config(conteudo_ficheiro=conteudo)
+        for some in self.valores_config():
+            print(f'{self.__getattribute__(some)=}, {some=}')
 
     def valores_config(self) -> list[str]:
         """
@@ -33,7 +36,7 @@ class Configs:
             )
         )
 
-    def config_parse(self, conteudo_ficheiro: str) -> None:
+    def parse_config(self, conteudo_ficheiro: str) -> None:
         """
         Retira os valores de config existentes no ficheiro ".httconfig"
         do projeto e adiciona esses mesmos valores à class
@@ -76,6 +79,17 @@ class Configs:
             Returns:
                 list[str] | int | float: Valor corretamente formatado
             """
+            if '>' in valor and ',' in valor:
+                # dict de valores
+                return dict(
+                    # a func map acaba por dividir o conteudo
+                    # em listas de strings de 2 valores cada,
+                    # o que permite transformar essas listas em Dicts
+                    map(
+                        lambda x: x.split(' > '),
+                        valor.split(',')
+                    )
+                )
             if ',' in valor:
                 # lista de strings
                 return valor.split(',')
