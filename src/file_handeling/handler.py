@@ -138,7 +138,7 @@ class FileHandler:
                 )
         return conteudo
 
-    def criar_ficheiro(self, nome_ficheiro: str, path: str, extensao: str) -> None:
+    def criar_ficheiro(self, nome_ficheiro: str, path: str = '', extensao: str = '.htt') -> None:
         """
         Cria um ficheiro a partir dos dados fornecidos
 
@@ -157,7 +157,7 @@ class FileHandler:
 
     def escrever_conteudo_ficheiro(
             self,
-            conteudo: str | list[str],
+            conteudo: str | list,
             # nome do ficheiro (str) ou estrutura da linguagem python
             ficheiro: os.DirEntry | str
     ) -> None:
@@ -208,8 +208,13 @@ class FileHandler:
         ) as file:
             if isinstance(conteudo, str):
                 file.write(conteudo)
-            elif isinstance(ficheiro, list[str]):
-                file.writelines(conteudo)
+            elif isinstance(conteudo, list):
+                file.writelines(
+                    map(
+                        lambda x: x + '\n',
+                        conteudo
+                    )
+                )
             else:
                 file.close()
                 erro_exit(
