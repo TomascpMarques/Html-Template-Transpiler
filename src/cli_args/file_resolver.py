@@ -5,8 +5,7 @@ Desenvolvimento e resolving do argumento file
 import re
 
 from cli.arg_setup import CliArgumento
-from file_handeling.handler import FileHandler
-from file_templating.template import Templater
+from file_templating.templater import Templater
 
 
 def run_arg_files(path_ficheiros: str) -> None:
@@ -16,8 +15,6 @@ def run_arg_files(path_ficheiros: str) -> None:
     Args:
         path_ficheiros (str): Caminho até à pasta que fornece os ficheiros alvo
     """
-    some = FileHandler(path=path_ficheiros)
-    print(some.resolver_ficheiro('.httconfig'))
     Templater(path=path_ficheiros)
 
 
