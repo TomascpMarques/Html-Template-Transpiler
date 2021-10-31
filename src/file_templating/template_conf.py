@@ -130,13 +130,16 @@ class Configs:
             self.__setattr__(chave, valor)
 
 
-class TemplateConfig:
+class TemplateConfig(Configs):
     """
     Centraliza e manipula as configurações do projeto
     """
 
     def __init__(self, conf_file: str):
-        self._config_obj: Configs = Configs(conf_file)
+        # Init do objeto Config para uso
+        super().__init__(conf_file)
+
+        self._config_obj: Configs = super()
         self.configs: dict[str, any] = self.configuracao_template()
 
     def configuracao_template(self) -> dict[str, any]:
@@ -150,3 +153,21 @@ class TemplateConfig:
             self._config_obj.config_opcoes(),
             self._config_obj.config_valores()
         )
+
+    def opcoes_config_existentes(self) -> list[str]:
+        """
+        Devolve as keys existentes no ficheiro de configuração
+
+        Returns:
+            list[str]: [description]
+        """
+        return self._config_obj.config_opcoes()
+
+    def valores_config_existentes(self) -> list[str]:
+        """
+        Devolve os valores existentes para as configurações defenidas
+
+        Returns:
+            list[str]: [description]
+        """
+        return self._config_obj.config_valores()

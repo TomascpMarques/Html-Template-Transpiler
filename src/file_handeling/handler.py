@@ -31,6 +31,10 @@ class FileHandler:
     def __init__(self, path: str):
         self.caminho: str = path
 
+        # Normalização do camiho do file handler atual
+        os.chdir(self.caminho)
+
+        # Procura por ficheiros e pastas que possam conter ficheiros válidos
         self.ficheiros: dict[str, os.DirEntry] = dict(
             (entrada.name, entrada) for entrada in os.scandir(path)
             if (
@@ -40,6 +44,7 @@ class FileHandler:
             ) or entrada.is_dir()
         )
 
+        # Verifica se a pasta alvo contêm o conteudo minímo necessário
         if not self.ficheiros.__len__():
             erro_exit(
                 menssagen='A pasta têm de ter no minimo um ficheiro de configuração',
@@ -58,7 +63,7 @@ class FileHandler:
         """
         return self.ficheiros.keys()
 
-    def resolver_ficheiro(self, path: str) -> str:
+    def resolver_conteudo_ficheiro(self, path: str) -> str:
         """
         Devolve o conteudo do ficheiro pedido
 
@@ -86,7 +91,7 @@ class FileHandler:
             return None
         return self.ficheiros.get(path)
 
-    def ficheiros_dir_entry(self, *caminhos: str) -> list[os.DirEntry]:
+    def ficheiros_dir_entrys(self, *caminhos: str) -> list[os.DirEntry]:
         """
         Devolve as dir entrys dos ficheiro pedidos
 
@@ -100,7 +105,7 @@ class FileHandler:
             lista_ficheiros.append(self.ficheiros.get(nome))
         return lista_ficheiros
 
-    def dump_ficheiros(self, *caminhos: str) -> str:
+    def resolver_conteudo_ficheiros(self, *caminhos: str) -> str:
         """
         Devolve o conteudo dos ficheiros pedidos
 
@@ -132,3 +137,83 @@ class FileHandler:
                     menssagen=f'O ficheiro <{nome}> é uma diretoria, não um ficheiro'
                 )
         return conteudo
+
+    def criar_ficheiro(self, nome_ficheiro: str, path: str, extensao: str) -> None:
+        """
+        Cria um ficheiro a partir dos dados fornecidos
+
+        Args:
+            nome_ficheiro (str): Nome a dar ao novo ficheiro
+            path (str): Path a usar para criar o ficheiro
+            extensao (str): Extensão a colocar no ficheiro
+        """
+        with open(
+                os.path.join(
+                    self.caminho,
+                    (path + nome_ficheiro + extensao)
+                ),
+                'w', encoding=sys.getfilesystemencoding()) as file:
+            file.close()
+
+    def escrever_conteudo_ficheiro(
+            self,
+            conteudo: str | list[str],
+            # nome do ficheiro (str) ou estrutura da linguagem python
+            ficheiro: os.DirEntry | str
+    ) -> None:
+        """
+        Escreve o conteudo fornecido num ficheiro especificado
+
+        Args:
+            conteudo (str | list[str]): Conteudo a ser escrito no ficheiro fornecido
+            ficheiro (os.DirEntry | str): Ficheiro alvo a ser escrito o conteudo, ou o nome do mesmo
+        """
+
+        # Avalia o type do ficheiro dado,
+        # se for string, irá ser conssiderado como um nome de ficheiro,
+        # e utilizado a partir do caminho defenido para o filehandler.
+        #
+        # Se for do tipo os.DirEntry, executa as operações de verificação
+        # e uso do mesmo com os dados contido na estrutura
+        if isinstance(ficheiro, os.DirEntry):
+            if ficheiro.name not in self.nome_ficheiros():
+                erro_exit(
+                    menssagen='O ficheiro dado não existe',
+                    time_stamp=True,
+                    tipo_erro='FileNaoExiste'
+                )
+            else:
+                pass
+        elif isinstance(ficheiro, str):
+            if ficheiro not in self.nome_ficheiros():
+                erro_exit(
+                    menssagen='O ficheiro dado não existe',
+                    time_stamp=True,
+                    tipo_erro='FileNaoExiste'
+                )
+            else:
+                pass
+        else:
+            erro_exit(
+                menssagen='Erro ao tentar processar o ficheiro pedido',
+                time_stamp=True,
+                tipo_erro='BadFileGiven'
+            )
+
+        # Verifica o tipo de conteudo e escreve o mesmo no ficheiro
+        # para a execução do programa se o conteudo for inváilido
+        with open(
+            os.path.join(self.caminho, ficheiro),
+            'w', encoding=sys.getfilesystemencoding()
+        ) as file:
+            if isinstance(conteudo, str):
+                file.write(conteudo)
+            elif isinstance(ficheiro, list[str]):
+                file.writelines(conteudo)
+            else:
+                file.close()
+                erro_exit(
+                    menssagen='O tipo de conteudo fornecido não é valido para a operação a efetuar',
+                    time_stamp=True,
+                    tipo_erro='BadContentGiven'
+                )
