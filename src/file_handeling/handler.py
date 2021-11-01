@@ -15,6 +15,7 @@ Lida com ficheiros e as suas pastas
 
 import os
 import sys
+import re
 
 from cli.erros import erro_exit
 
@@ -35,7 +36,7 @@ class FileHandler:
         os.chdir(self.caminho)
 
         # Procura por ficheiros e pastas que possam conter ficheiros válidos
-        self.ficheiros: dict[str, os.DirEntry] = dict(
+        self.conteudo: dict[str, os.DirEntry] = dict(
             (entrada.name, entrada) for entrada in os.scandir(path)
             if (
                 entrada.is_file()
@@ -45,14 +46,23 @@ class FileHandler:
         )
 
         # Verifica se a pasta alvo contêm o conteudo minímo necessário
-        if not self.ficheiros.__len__():
+        if not self.conteudo.__len__():
             erro_exit(
                 menssagen='A pasta têm de ter no minimo um ficheiro de configuração',
                 time_stamp=True,
                 tipo_erro='NotEnoughFiles'
             )
 
-        print(self.ficheiros)
+        print(self.conteudo)
+
+    def conteudo_dir(self) -> dict[str, os.DirEntry]:
+        """
+        Devolve as direntrys dos ficheiros e pastas encontradas
+
+        Returns:
+            dict[str, os.DirEntry]: Conteudo encontrado no path inicial especificado
+        """
+        return self.conteudo
 
     def nome_ficheiros(self) -> list[str]:
         """
@@ -61,7 +71,7 @@ class FileHandler:
         Returns:
             list[str]: [description]
         """
-        return self.ficheiros.keys()
+        return self.conteudo.keys()
 
     def resolver_conteudo_ficheiro(self, path: str) -> str:
         """
@@ -73,7 +83,7 @@ class FileHandler:
         Returns:
             list[str]: Conteudos do ficheiro em linhas
         """
-        print(f'{self.ficheiros.get(path).path}')
+        print(f'{self.conteudo.get(path).path}')
         with open(
             os.path.join(self.caminho, path),
             'r', encoding=sys.getfilesystemencoding()
@@ -87,9 +97,9 @@ class FileHandler:
         Returns:
             os.DirEntry | None: A dir entry especificada ou None
         """
-        if path not in self.ficheiros.keys():
+        if path not in self.conteudo.keys():
             return None
-        return self.ficheiros.get(path)
+        return self.conteudo.get(path)
 
     def ficheiros_dir_entrys(self, *caminhos: str) -> list[os.DirEntry]:
         """
@@ -100,9 +110,9 @@ class FileHandler:
         """
         lista_ficheiros: list[os.DirEntry] = []
         for nome in caminhos:
-            if nome not in self.ficheiros.keys():
+            if nome not in self.conteudo.keys():
                 return []
-            lista_ficheiros.append(self.ficheiros.get(nome))
+            lista_ficheiros.append(self.conteudo.get(nome))
         return lista_ficheiros
 
     def resolver_conteudo_ficheiros(self, *caminhos: str) -> str:
@@ -222,3 +232,83 @@ class FileHandler:
                     time_stamp=True,
                     tipo_erro='BadContentGiven'
                 )
+
+
+def parse_htt_file(conteudo_ficheiro: str) -> dict[str, list[str]]:
+    """
+        Retira os valores de config existentes no ficheiro ".httconfig"
+        do projeto e adiciona esses mesmos valores à class
+
+        Args:
+            conteudo_ficheiro (str): Conteudo do ficheiro de config
+        """
+
+    # Divide o conteudo do ficheiro através de new-lines vazias
+    # Ex:
+    #     fontes :
+    #         sdasdas,
+    #         asdasd,
+    #     <empty new line>
+    #     some :
+    #         some
+    conteudo_ficheiro = \
+        re.split(
+            re.compile(r"^\n", re.MULTILINE),
+            conteudo_ficheiro
+        )
+
+    # Esta lista vai  guardar os valores em que
+    # os caracteres desnecessários são retirados
+    lista_temp_valores_conf: list[str] = []
+    for word in conteudo_ficheiro:
+        for char in ['    ', '\t', '\n', '\t ']:
+            word = word.replace(char, '')
+        lista_temp_valores_conf.append(word)
+
+       # Formata os valores de acordo com a sua estrutura em python
+    def formatar_valor(valor: str) -> list[str] | int | float:
+        """
+        De acordo com a estrutura do valor,
+        devolve uma estrutura equivalente em python
+
+        Args:
+            valor (str): Valor a formatar
+
+        Returns:
+            list[str] | int | float: Valor corretamente formatado
+        """
+        print(f'{valor=}')
+        if '>' in valor:
+            # dict de valores
+            return dict(
+                # a func map acaba por dividir o conteudo
+                # em listas de strings de 2 valores cada,
+                # o que permite transformar essas listas em Dicts
+                map(
+                    lambda x: x.split(' > '),
+                    valor.split(',')
+                )
+            )
+        if ',' in valor:
+            # lista de strings
+            return valor.split(',')
+        if valor.isnumeric():
+            return int(valor)
+        if re.match(r'\d+', valor):
+            return float(valor)
+
+        # default catch
+        return valor
+
+       # Cria o dicionário com os valores e chaves corretos
+       # de config, para adicionar à struct
+    configs_valores_dict: dict[str, list[str]] = dict(
+        (
+            line[0: line.index(':')-1],   # key
+            formatar_valor(
+                line[line.index(':')+1:]  # valor
+            )
+        ) for line in lista_temp_valores_conf
+    )
+
+    return configs_valores_dict
