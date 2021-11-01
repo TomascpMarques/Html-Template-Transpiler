@@ -36,7 +36,7 @@ class FileHandler:
         os.chdir(self.caminho)
 
         # Procura por ficheiros e pastas que possam conter ficheiros válidos
-        self.conteudo: dict[str, os.DirEntry] = dict(
+        self._conteudo: dict[str, os.DirEntry] = dict(
             (entrada.name, entrada) for entrada in os.scandir(path)
             if (
                 entrada.is_file()
@@ -46,14 +46,12 @@ class FileHandler:
         )
 
         # Verifica se a pasta alvo contêm o conteudo minímo necessário
-        if not self.conteudo.__len__():
+        if not self._conteudo.__len__():
             erro_exit(
                 menssagen='A pasta têm de ter no minimo um ficheiro de configuração',
                 time_stamp=True,
                 tipo_erro='NotEnoughFiles'
             )
-
-        print(self.conteudo)
 
     def conteudo_dir(self) -> dict[str, os.DirEntry]:
         """
@@ -62,7 +60,7 @@ class FileHandler:
         Returns:
             dict[str, os.DirEntry]: Conteudo encontrado no path inicial especificado
         """
-        return self.conteudo
+        return self._conteudo
 
     def nome_ficheiros(self) -> list[str]:
         """
@@ -71,7 +69,7 @@ class FileHandler:
         Returns:
             list[str]: [description]
         """
-        return self.conteudo.keys()
+        return self._conteudo.keys()
 
     def resolver_conteudo_ficheiro(self, path: str) -> str:
         """
@@ -83,10 +81,9 @@ class FileHandler:
         Returns:
             list[str]: Conteudos do ficheiro em linhas
         """
-        print(f'{self.conteudo.get(path).path}')
         with open(
-            os.path.join(self.caminho, path),
-            'r', encoding=sys.getfilesystemencoding()
+            path, 'r',
+            encoding=sys.getfilesystemencoding()
         ) as ficheiro:
             return ficheiro.read()
 
@@ -97,9 +94,9 @@ class FileHandler:
         Returns:
             os.DirEntry | None: A dir entry especificada ou None
         """
-        if path not in self.conteudo.keys():
+        if path not in self._conteudo.keys():
             return None
-        return self.conteudo.get(path)
+        return self._conteudo.get(path)
 
     def ficheiros_dir_entrys(self, *caminhos: str) -> list[os.DirEntry]:
         """
@@ -110,9 +107,9 @@ class FileHandler:
         """
         lista_ficheiros: list[os.DirEntry] = []
         for nome in caminhos:
-            if nome not in self.conteudo.keys():
+            if nome not in self._conteudo.keys():
                 return []
-            lista_ficheiros.append(self.conteudo.get(nome))
+            lista_ficheiros.append(self._conteudo.get(nome))
         return lista_ficheiros
 
     def resolver_conteudo_ficheiros(self, *caminhos: str) -> str:
@@ -129,7 +126,7 @@ class FileHandler:
         for nome in caminhos:
             try:
                 with open(
-                    os.path.join(self.caminho, nome),
+                    nome,
                     'r',
                     encoding=sys.getfilesystemencoding()
                 ) as file:
@@ -213,7 +210,7 @@ class FileHandler:
         # Verifica o tipo de conteudo e escreve o mesmo no ficheiro
         # para a execução do programa se o conteudo for inváilido
         with open(
-            os.path.join(self.caminho, ficheiro),
+            ficheiro,
             'w', encoding=sys.getfilesystemencoding()
         ) as file:
             if isinstance(conteudo, str):
@@ -277,7 +274,8 @@ def parse_htt_file(conteudo_ficheiro: str) -> dict[str, list[str]]:
         Returns:
             list[str] | int | float: Valor corretamente formatado
         """
-        print(f'{valor=}')
+        # print(f'{valor=}')
+        # print(f'{list(map(lambda x: x.split(" > "),valor.split(",")))=}')
         if '>' in valor:
             # dict de valores
             return dict(
