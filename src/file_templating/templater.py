@@ -5,6 +5,7 @@
 
 from file_handeling.handler import FileHandler
 from file_templating.template_conf import TemplateConfig
+from file_templating.template_files import TemplatingFiles
 
 TEMPLATE_CONFIG_NOMEACAO: str = '.httconfig'
 
@@ -23,4 +24,8 @@ class Templater(FileHandler):
 
         self.configs: TemplateConfig = TemplateConfig(
             super().resolver_conteudo_ficheiro(TEMPLATE_CONFIG_NOMEACAO)
+        )
+
+        self.templating: TemplatingFiles = TemplatingFiles(
+            path=path
         )
