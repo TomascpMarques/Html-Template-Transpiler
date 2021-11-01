@@ -7,7 +7,16 @@
 from file_handeling.handler import FileHandler
 
 
-class TemplateFiles(FileHandler):
+class TemplateFile:
+    """
+    Some Some
+    """
+
+    def __init__(self):
+        pass
+
+
+class TemplatingFiles(FileHandler):
     """
     Some Some
     """
@@ -16,4 +25,4 @@ class TemplateFiles(FileHandler):
         # Setup do FileHandler, com o caminho especifico
         super().__init__(path)
 
-        self.stuff = 'temp'
+        self.conteudo_dir = super().conteudo_dir()
