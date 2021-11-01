@@ -23,9 +23,6 @@ class Configs:
         for chave, valor in parse_htt_file(conteudo).items():
             self.__setattr__(chave, valor)
 
-        for some in self.config_opcoes():
-            print(f'{self.__getattribute__(some)=}, {some=}')
-
     def config_opcoes(self) -> list[str]:
         """
         Retorna os valores de config existentes na class
