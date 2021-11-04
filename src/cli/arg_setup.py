@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from cli.erros import erro_exit
 
 
-@dataclass
+@dataclass(slots=True)
 class CliArgumento():
     """
     Define a estrutura de um possivél argumento aceitável pela aplicação/cli

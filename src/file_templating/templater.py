@@ -27,5 +27,6 @@ class Templater(FileHandler):
         )
 
         self.templating: TemplatingFiles = TemplatingFiles(
-            path=path
+            path=path,
+            configs=self.configs
         )

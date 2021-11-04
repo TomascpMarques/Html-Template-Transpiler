@@ -53,14 +53,14 @@ class FileHandler:
                 tipo_erro='NotEnoughFiles'
             )
 
-    def conteudo_dir(self) -> dict[str, os.DirEntry]:
+    def conteudo_dir_entrys(self) -> dict[str, os.DirEntry]:
         """
         Devolve as direntrys dos ficheiros e pastas encontradas
 
         Returns:
             dict[str, os.DirEntry]: Conteudo encontrado no path inicial especificado
         """
-        return self._conteudo
+        return self._conteudo.copy()
 
     def nome_ficheiros(self) -> list[str]:
         """
@@ -71,7 +71,8 @@ class FileHandler:
         """
         return self._conteudo.keys()
 
-    def resolver_conteudo_ficheiro(self, path: str) -> str:
+    @staticmethod
+    def resolver_conteudo_ficheiro(path: str) -> str:
         """
         Devolve o conteudo do ficheiro pedido
 
@@ -87,9 +88,21 @@ class FileHandler:
         ) as ficheiro:
             return ficheiro.read()
 
-    def ficheiro_dir_entry(self, path: str) -> os.DirEntry | None:
+    def resolver_conteudo_dir_entry(self, dir_entry: os.DirEntry) -> str:
         """
-        Devolve a dir entry do ficheiro pedidos
+        Devolve o conteudo do ficheiro pedido
+
+        Args:
+            file_entry (os.DirEntry): A dir entry do ficheiro a ler o conteudo
+
+        Returns:
+            str: Conteudo do ficheiro
+        """
+        return self.resolver_conteudo_ficheiro(dir_entry.path)
+
+    def path_get_dir_entry(self, path: str) -> os.DirEntry | None:
+        """
+        Devolve a dir entry do ficheiro pedido
 
         Returns:
             os.DirEntry | None: A dir entry especificada ou None
@@ -98,21 +111,41 @@ class FileHandler:
             return None
         return self._conteudo.get(path)
 
-    def ficheiros_dir_entrys(self, *caminhos: str) -> list[os.DirEntry]:
+    def get_current_dir_entrys(self) -> list[os.DirEntry]:
+        """
+        Devolve as dir entrys do path atual
+
+        Returns:
+            list[os.DirEntry]: Dir entrys no path
+        """
+        return list(entry for _, entry in self._conteudo.items() if entry.is_file())
+
+    def path_get_dir_entrys(self) -> list[os.DirEntry]:
         """
         Devolve as dir entrys dos ficheiro pedidos
 
         Returns:
             list[os.DirEntry]: Lista das dir entries dso ficheiros pedidos
         """
-        lista_ficheiros: list[os.DirEntry] = []
-        for nome in caminhos:
-            if nome not in self._conteudo.keys():
-                return []
-            lista_ficheiros.append(self._conteudo.get(nome))
-        return lista_ficheiros
+        return self.get_current_dir_entrys()
 
-    def resolver_conteudo_ficheiros(self, *caminhos: str) -> str:
+    def dir_entrys_por_extensao(self, extensao: str) -> list[os.DirEntry]:
+        """
+        Devolve todas as dir entrys em que a extensão de ficheiro é equivalente à pedida
+        no path (caminho) fornecido
+
+        Returns:
+            list[os.DirEntry]: Dir entrys com a extensão de ficheiro pedida
+        """
+        return list(
+            filter(
+                lambda x: x.name[x.name.index('.'):] == extensao,
+                self.get_current_dir_entrys()
+            )
+        )
+
+    @staticmethod
+    def resolver_conteudo_ficheiros(*caminhos: str) -> str:
         """
         Devolve o conteudo dos ficheiros pedidos
 
@@ -161,6 +194,18 @@ class FileHandler:
                 ),
                 'w', encoding=sys.getfilesystemencoding()) as file:
             file.close()
+
+    @staticmethod
+    def criar_pasta(path: str) -> str:
+        """
+        Cria uma pasta para o output do programa
+        """
+        try:
+            os.mkdir(path)
+        except FileExistsError:
+            pass
+
+        return path
 
     def escrever_conteudo_ficheiro(
             self,

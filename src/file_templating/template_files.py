@@ -4,44 +4,43 @@
 """
 
 from dataclasses import dataclass
+from os import DirEntry
+from cli.erros import erro_exit
 
 from file_handeling.handler import FileHandler, parse_htt_file
+from file_templating.template_conf import TemplateConfig
 
 
-class TemplatingFiles(FileHandler):
-    """
-    Some Some
-    """
-
-    def __init__(self, path: str):
-        # Setup do FileHandler, com o caminho especifico
-        super().__init__(path)
-
-        self.conteudo_dir = super().conteudo_dir()
-        self.htt_templates: dict[str, any] = {}
-
-        for key, dir_entry in self.conteudo_dir.items():
-            if '.httconfig' not in key and dir_entry.is_file():
-                self.htt_templates.setdefault(
-                    key,
-                    TemplateFile(
-                        parse_htt_file(
-                            super().
-                            resolver_conteudo_ficheiro(dir_entry.path)
-                        )
-                    ),
-                )
-
-
-@dataclass
+@dataclass()
 class TemplateFile:
     """
     Some Some
     """
 
     def __init__(self, file_tags: dict[str, list[str]]):
-        for key, valor in file_tags.items():
-            self.__setattr__(key, valor)
+        # adiciona os valores passados de file_tags
+        # para atributuos da class
+        for chave, valor in file_tags.items():
+            self.__setattr__(chave, valor)
+
+        self.validar_keys_template()
+
+        print("<-!>", self.get(self.keys()[0]))
+
+    def __getattr__(self, key: str):
+        return self.__dict__[key]
+
+    def get(self, key: str) -> any:
+        """
+        Devolve o atributuo pedido, através de uma key
+
+        Args:
+            key (str): Key do atributuo a devolver
+
+        Returns:
+            any: Valor de retorno
+        """
+        return self.__getattr__(key)
 
     def keys(self) -> list[str]:
         """
@@ -70,3 +69,99 @@ class TemplateFile:
         return list(
             key for key in self.keys() if key.endswith(tipo)
         )
+
+    def validar_keys_template(self) -> None:
+        """
+        Verifica se as keys fornecidas pelo template contêm a informação base necessária
+        """
+        valid_keys: list[str] = ['tag', 'conteudo']
+        for section in self.keys():
+            section_keys = self.get(section).keys()
+            if set(valid_keys) != set(section_keys):
+                error_mss = \
+                    f'A secção <{section}>, contêm valores inválidos.\
+                    \nEsperados: <{valid_keys}>\nDados:     <{list(section_keys)}>'
+
+                erro_exit(
+                    menssagen=error_mss,
+                    time_stamp=True,
+                    tipo_erro='BadSectionOptVals'
+                )
+
+
+@dataclass()
+class TemplatingFiles(FileHandler):
+    """
+    Gestão e utilização dos ficheiros htt, tanto de config como os de templating
+    """
+
+    def __init__(self, path: str, configs: TemplateConfig):
+        # Setup do FileHandler, com o caminho especifico
+        super().__init__(path)
+
+        # Conteudo existente no path especifico
+        self.conteudo_dir: dict[str, DirEntry] = super().conteudo_dir_entrys()
+
+        # Leitura e atribuição dos ficheiros de templating htt
+        self.htt_templates: dict[str, any] = {}
+        self.resolve_htt_templates()
+
+        HTMLGenerator(
+            file_handeling=self,
+            configs=configs
+        )
+
+    def resolve_htt_templates(self) -> None:
+        """
+        Resolve os ficheiros htt e retira a informação inerente aos mesmos
+        """
+        for chave, dir_entry in self.conteudo_dir.items():
+            # só lê o ficheiro se não for um file de config e não uma pasta
+            if '.httconfig' not in chave and dir_entry.is_file():
+                self.htt_templates.setdefault(
+                    chave,
+                    # Criação do TemplateFile através da info. dada
+                    TemplateFile(
+                        # Análise do ficheiro e parse do mesmo
+                        parse_htt_file(
+                            # leitura do conteudo do ficheiro no disco
+                            super().
+                            resolver_conteudo_ficheiro(dir_entry.path)
+                        )
+                    ),
+                )
+
+
+###############################################################################
+
+class HTMLGeneratorHelper:
+    """
+    AAAA
+    """
+
+    def __init__(self) -> None:
+        print('some')
+
+
+class HTMLGenerator(HTMLGeneratorHelper):
+    """
+    Some
+    """
+
+    def __init__(self, file_handeling: FileHandler, configs: TemplateConfig):
+        super().__init__()
+
+        self.file_handeling = file_handeling
+        self.configs = configs
+
+        self.output_pasta_path: str = self.file_handeling.criar_pasta(
+            'htt-oputut'
+        )
+
+        for file_entry in self.file_handeling.dir_entrys_por_extensao('.htt'):
+            file_content: str = self.file_handeling.resolver_conteudo_dir_entry(
+                dir_entry=file_entry
+            )
+            print(
+                "->", parse_htt_file(file_content)
+            )
