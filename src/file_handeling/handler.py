@@ -20,7 +20,7 @@ import re
 from cli.erros import erro_exit
 
 
-FILE_EXTENSIONS: list[str] = ['.htt', '.httconfig']
+HTT_FILE_EXTENSIONS: list[str] = ['.htt', '.httconfig']
 
 
 class FileHandler:
@@ -41,7 +41,7 @@ class FileHandler:
             if (
                 entrada.is_file()
                 and entrada.name[entrada.name.index('.'):]
-                in FILE_EXTENSIONS
+                in HTT_FILE_EXTENSIONS
             ) or entrada.is_dir()
         )
 
