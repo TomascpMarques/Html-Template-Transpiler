@@ -276,7 +276,7 @@ class FileHandler:
                 )
 
 
-def parse_htt_file(conteudo_ficheiro: str) -> dict[str, list[str]]:
+def parse_htt_file(conteudo_ficheiro: str) -> dict[str, dict[str, any]]:
     """
         Retira os valores de config existentes no ficheiro ".httconfig"
         do projeto e adiciona esses mesmos valores à class
@@ -345,7 +345,7 @@ def parse_htt_file(conteudo_ficheiro: str) -> dict[str, list[str]]:
 
        # Cria o dicionário com os valores e chaves corretos
        # de config, para adicionar à struct
-    configs_valores_dict: dict[str, list[str]] = dict(
+    configs_valores_dict: dict[str, dict[str, any]] = dict(
         (
             line[0: line.index(':')-1],   # key
             formatar_valor(
