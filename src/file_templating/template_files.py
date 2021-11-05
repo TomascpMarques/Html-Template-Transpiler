@@ -3,8 +3,12 @@
     Ler os mesmos, e interpretalos
 """
 
+import os
+import sys
+
 from dataclasses import dataclass
 from os import DirEntry
+from types import FunctionType
 from cli.erros import erro_exit
 
 from file_handeling.handler import FileHandler, parse_htt_file
@@ -24,8 +28,6 @@ class TemplateFile:
             self.__setattr__(chave, valor)
 
         self.validar_keys_template()
-
-        print("<-!>", self.get(self.keys()[0]))
 
     def __getattr__(self, key: str):
         return self.__dict__[key]
@@ -134,16 +136,33 @@ class TemplatingFiles(FileHandler):
 
 ###############################################################################
 
-class HTMLGeneratorHelper:
+class HTMLGeneratorTags:
     """
     AAAA
     """
 
     def __init__(self) -> None:
-        print('some')
+        self.funcs: dict[str, FunctionType] = dict(
+            (func_name[:-4], self.__getattribute__(func_name))
+            for func_name in self.__dir__() if '_tag' in func_name
+        )
+        print(self.funcs)
+
+    @staticmethod
+    def h1_tag(conteudo: str, /, tag_id: str = '') -> str:
+        """[summary]
+
+        Args:
+            conteudo (str): [description]
+            id (str, optional): [description]. Defaults to ''.
+
+        Returns:
+            str: [description]
+        """
+        return f'<h1 id="{tag_id.replace(" ","-")}">{conteudo}</h1>'
 
 
-class HTMLGenerator(HTMLGeneratorHelper):
+class HTMLGenerator(HTMLGeneratorTags):
     """
     Some
     """
@@ -151,17 +170,38 @@ class HTMLGenerator(HTMLGeneratorHelper):
     def __init__(self, file_handeling: FileHandler, configs: TemplateConfig):
         super().__init__()
 
-        self.file_handeling = file_handeling
-        self.configs = configs
+        self.file_handeling: FileHandler = file_handeling
+        self.configs: TemplateConfig = configs
 
         self.output_pasta_path: str = self.file_handeling.criar_pasta(
             'htt-oputut'
         )
 
-        for file_entry in self.file_handeling.dir_entrys_por_extensao('.htt'):
-            file_content: str = self.file_handeling.resolver_conteudo_dir_entry(
-                dir_entry=file_entry
-            )
-            print(
-                "->", parse_htt_file(file_content)
-            )
+        print(self.gen_html())
+
+    def gen_html(self) -> None:
+        """
+        Generates HTML from the given htt template data
+        """
+        compilled_values: list[str] = []
+
+        with open(
+                os.path.join(self.output_pasta_path, 'some.html'),
+                'w',
+                encoding=sys.getfilesystemencoding()
+        ) as ficheiro:
+            for file_entry in self.file_handeling.dir_entrys_por_extensao('.htt'):
+                file_content_parssed:  dict[str, dict[str, any]] = parse_htt_file(
+                    self.file_handeling.resolver_conteudo_dir_entry(
+                        dir_entry=file_entry
+                    )
+                )
+
+                for seccao, conteudo in file_content_parssed.items():
+                    compilled_values.append(
+                        self.funcs.get(
+                            conteudo.get('tag')
+                        )(conteudo.get('conteudo'), tag_id=seccao)
+                    )
+            ficheiro.writelines('\n'.join(compilled_values))
+        return compilled_values
