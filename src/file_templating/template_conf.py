@@ -2,10 +2,12 @@
 Configurações do templating
 """
 
+from dataclasses import dataclass
 from file_handeling.handler import parse_htt_file
 
 
-class Configs:
+@dataclass(slots=True)
+class Configs(object):
     """
     Gere e armazena as configurações para o templating
     do site a gerar
@@ -16,7 +18,6 @@ class Configs:
         self.fontes: dict[str, str] = {}
         self.tema: str = ''
         self.estilo: str = ''
-        self.tags_custom: str = ''
         # End Configs Esperadas
 
         #  Adiciona os valores e atributuos corretos à class
@@ -31,8 +32,8 @@ class Configs:
             list[str]: Valores disponiveis
         """
         return list(
-            map(
-                lambda x: x.replace('__', ''),
+            filter(
+                lambda x: not('__' in x or '_' in x),
                 self.__dict__
             )
         )
@@ -60,8 +61,16 @@ class TemplateConfig(Configs):
         # Init do objeto Config para uso
         super().__init__(conf_file)
 
-        self._config_obj: Configs = super()
-        self.configs: dict[str, any] = self.configuracao_template()
+        self.configuracao_template()
+
+    def configs(self) -> dict[str, any]:
+        """
+        Devolve todos os valores atribuidos à configuração de template
+
+        Returns:
+            dict[str, any]: Keys and values in a dict
+        """
+        return self.__dict__
 
     def configuracao_template(self) -> dict[str, any]:
         """
@@ -70,9 +79,11 @@ class TemplateConfig(Configs):
         Returns:
             dict[str, any]: Valores de configuração ligados por key/val
         """
-        return zip(
-            self._config_obj.config_opcoes(),
-            self._config_obj.config_valores()
+        return dict(
+            zip(
+                self.config_opcoes(),
+                self.config_valores()
+            )
         )
 
     def opcoes_config_existentes(self) -> list[str]:
@@ -82,7 +93,7 @@ class TemplateConfig(Configs):
         Returns:
             list[str]: [description]
         """
-        return self._config_obj.config_opcoes()
+        return self.config_opcoes()
 
     def valores_config_existentes(self) -> list[str]:
         """
@@ -91,4 +102,4 @@ class TemplateConfig(Configs):
         Returns:
             list[str]: [description]
         """
-        return self._config_obj.config_valores()
+        return self.config_valores()
