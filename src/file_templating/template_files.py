@@ -9,6 +9,7 @@ import sys
 from dataclasses import dataclass
 from os import DirEntry
 from types import FunctionType
+from typing import Any
 from cli.erros import erro_exit
 
 from file_handeling.handler import FileHandler, parse_htt_file
@@ -32,7 +33,7 @@ class TemplateFile:
     def __getattr__(self, key: str):
         return self.__dict__[key]
 
-    def get(self, key: str) -> any:
+    def get(self, key: str) -> Any:
         """
         Devolve o atributuo pedido, através de uma key
 
@@ -77,7 +78,7 @@ class TemplateFile:
         Verifica se as keys fornecidas pelo template contêm a informação base necessária
         """
         valid_keys: list[str] = ['tag', 'conteudo']
-        for section in self.keys():
+        for section in self:
             section_keys = self.get(section).keys()
             if set(valid_keys) != set(section_keys):
                 error_mss = \
@@ -105,7 +106,7 @@ class TemplatingFiles(FileHandler):
         self.conteudo_dir: dict[str, DirEntry] = super().conteudo_dir_entrys()
 
         # Leitura e atribuição dos ficheiros de templating htt
-        self.htt_templates: dict[str, any] = {}
+        self.htt_templates: dict[str, object] = {}
         self.resolve_htt_templates()
 
         HTMLGenerator(

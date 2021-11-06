@@ -3,6 +3,7 @@ Configurações do templating
 """
 
 from dataclasses import dataclass
+from typing import Any
 from file_handeling.handler import parse_htt_file
 
 
@@ -38,7 +39,7 @@ class Configs(object):
             )
         )
 
-    def config_valores(self) -> list[any]:
+    def config_valores(self) -> list:
         """
         Retorna uma lista só com todos os valores
         de todas as opções de config_opcoes
@@ -63,7 +64,7 @@ class TemplateConfig(Configs):
 
         self.configuracao_template()
 
-    def configs(self) -> dict[str, any]:
+    def configs(self) -> dict[str, Any]:
         """
         Devolve todos os valores atribuidos à configuração de template
 
@@ -72,7 +73,7 @@ class TemplateConfig(Configs):
         """
         return self.__dict__
 
-    def configuracao_template(self) -> dict[str, any]:
+    def configuracao_template(self) -> dict[str, Any]:
         """
         Retorna um dicionario com a configuração do template
 

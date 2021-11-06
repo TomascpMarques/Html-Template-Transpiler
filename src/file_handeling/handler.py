@@ -69,7 +69,7 @@ class FileHandler:
         Returns:
             list[str]: [description]
         """
-        return self._conteudo.keys()
+        return list(self._conteudo.keys())
 
     @staticmethod
     def resolver_conteudo_ficheiro(path: str) -> str:
@@ -145,7 +145,7 @@ class FileHandler:
         )
 
     @staticmethod
-    def resolver_conteudo_ficheiros(*caminhos: str) -> str:
+    def resolver_conteudo_ficheiros(*caminhos: str) -> list[str]:
         """
         Devolve o conteudo dos ficheiros pedidos
 
@@ -155,7 +155,7 @@ class FileHandler:
         Returns:
             list[list[str]]: O conteudo dos ficheiros, separados por linhas
         """
-        conteudo: str = ''
+        conteudo: list[str] = []
         for nome in caminhos:
             try:
                 with open(
@@ -276,7 +276,7 @@ class FileHandler:
                 )
 
 
-def parse_htt_file(conteudo_ficheiro: str) -> dict[str, dict[str, any]]:
+def parse_htt_file(conteudo_ficheiro: str) -> dict[str, dict[str, object]]:
     """
         Retira os valores de config existentes no ficheiro ".httconfig"
         do projeto e adiciona esses mesmos valores à class
