@@ -12,6 +12,7 @@ def main():
     """
     Função a correr se o ficheiro
     for invocado como um script.
+    wow.
     """
 
     running_cli = Cli(sys.argv, **CLI_ARGS)
