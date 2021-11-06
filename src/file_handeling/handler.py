@@ -16,6 +16,7 @@ Lida com ficheiros e as suas pastas
 import os
 import sys
 import re
+from typing import Any
 
 from cli.erros import erro_exit
 
@@ -32,6 +33,7 @@ class FileHandler:
     def __init__(self, path: str):
         self.caminho: str = path
 
+        print("->", self.caminho)
         # Normalização do camiho do file handler atual
         os.chdir(self.caminho)
 
@@ -276,7 +278,7 @@ class FileHandler:
                 )
 
 
-def parse_htt_file(conteudo: str) -> dict[str, object]:
+def parse_htt_file(conteudo: str) -> dict[str, Any]:
     """
         Retira os valores de config existentes no ficheiro ".httconfig"
         do projeto e adiciona esses mesmos valores à class

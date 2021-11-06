@@ -21,18 +21,20 @@ class Cli:
         self.argumentos: dict[str, CliArgumento] = dict(
             (key, val) for (key, val) in kwargs.items()
         )
-        # valida os argumentos da cli contro os disponiveis
+
+        # valida os argumentos da cli contra os disponiveis
         self.__parse_cli_args(args)
 
     def run(self) -> None:
         """
         Corre o programa com os argumentos fornecidos
         """
-        for arg, val in self.argumentos.items():
+        for arg, val in self.argumentos_parssed.items():
             resolver_cli_args(arg, val)
 
     def __parse_cli_args(self, args: list[str]):
-        """Parse os argurmentos dados ao correr o script
+        """
+        Parse dos argurmentos dados ao correr o script
 
         Args:
             args(list[str]): Os argumentos usados ao correr o script
@@ -45,7 +47,7 @@ class Cli:
         self.arg_list_pre_validacao(args)
 
         # Atualizar o campo "argumentos" com o dicionario dos argumentos/valores extraidos
-        self.argumentos = self.args_extrair_keys_and_vals(args)
+        self.argumentos_parssed = self.args_extrair_keys_and_vals(args)
 
         # Valida os argumentos extraidos de "args"
         self.validar_args_extraidos()
@@ -55,10 +57,10 @@ class Cli:
         Valida os argumentos extraidos, contra os argumentos já defenidos
         """
         # Valida os argumentos extraidos
-        for arg in self.argumentos:
+        for arg in self.argumentos_parssed:
             if not validar_argumento(
                 CLI_ARGS[arg],
-                self.argumentos[arg]
+                self.argumentos_parssed[arg]
             ):
                 erro_exit(
                     menssagen=f'{CLI_ARGS[arg].erro_validacao}',

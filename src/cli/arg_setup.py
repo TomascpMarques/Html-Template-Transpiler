@@ -14,7 +14,9 @@ class CliArgumento():
     """
     Define a estrutura de um possivél argumento aceitável pela aplicação/cli
     """
-    run: Callable = field()
+    run: Callable = field(
+        default=lambda x: x
+    )
     func_validacao: Callable = field(
         default=lambda x: x
     )
@@ -46,4 +48,4 @@ def validar_argumento(campo: CliArgumento, arg: str) -> str | None:
             menssagen=campo.erro_validacao,
         )
         return None
-    return campo.func_validacao(arg) or arg
+    return campo.func_validacao(arg) or None
