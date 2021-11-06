@@ -11,7 +11,7 @@ from cli_args.args import CLI_ARGS
 def main():
     """
     Função a correr se o ficheiro
-    for invocado como um script
+    for invocado como um script.
     """
 
     running_cli = Cli(sys.argv, **CLI_ARGS)
