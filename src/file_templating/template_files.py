@@ -3,8 +3,6 @@
     Ler os mesmos, e interpretalos
 """
 
-import os
-import sys
 
 from dataclasses import dataclass
 from os import DirEntry
@@ -78,7 +76,7 @@ class TemplateFile:
         Verifica se as keys fornecidas pelo template contêm a informação base necessária
         """
         valid_keys: list[str] = ['tag', 'conteudo']
-        for section in self:
+        for section in self.keys():
             section_keys = self.get(section).keys()
             if set(valid_keys) != set(section_keys):
                 error_mss = \
@@ -184,25 +182,3 @@ class HTMLGenerator(HTMLGeneratorTags):
         """
         Generates HTML from the given htt template data
         """
-        compilled_values: list[str] = []
-
-        with open(
-                os.path.join(self.output_pasta_path, 'some.html'),
-                'w',
-                encoding=sys.getfilesystemencoding()
-        ) as ficheiro:
-            for file_entry in self.file_handeling.dir_entrys_por_extensao('.htt'):
-                file_content_parssed:  dict[str, dict[str, any]] = parse_htt_file(
-                    self.file_handeling.resolver_conteudo_dir_entry(
-                        dir_entry=file_entry
-                    )
-                )
-
-                for seccao, conteudo in file_content_parssed.items():
-                    compilled_values.append(
-                        self.funcs.get(
-                            conteudo.get('tag')
-                        )(conteudo.get('conteudo'), tag_id=seccao)
-                    )
-            ficheiro.writelines('\n'.join(compilled_values))
-        return compilled_values

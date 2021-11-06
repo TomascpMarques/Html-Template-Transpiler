@@ -14,9 +14,7 @@ class CliArgumento():
     """
     Define a estrutura de um possivél argumento aceitável pela aplicação/cli
     """
-    run: Callable = field(
-        default=None
-    )
+    run: Callable = field()
     func_validacao: Callable = field(
         default=lambda x: x
     )

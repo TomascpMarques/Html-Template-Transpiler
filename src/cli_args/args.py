@@ -8,7 +8,7 @@ from cli.erros import erro_exit
 from cli_args.file_resolver import files_arg
 
 
-def resolver_cli_args(arg: str, param: any) -> None:
+def resolver_cli_args(arg: str, param: CliArgumento) -> None:
     """
     Resolve o argumento da cli especificado com o param dados
 
@@ -28,9 +28,9 @@ def run_arg_help(arg: str) -> None:
     """
     if arg == 'all':
         print('Help:')
-        for arg in CLI_ARGS:
+        for args in CLI_ARGS:
             print(
-                f' --{arg}:{" "*2}{CLI_ARGS.get(arg).descricao_argumento}')
+                f' --{args}:{" "*2}{CLI_ARGS.get(args).descricao_argumento}')
         return
 
     if arg not in CLI_ARGS.keys():

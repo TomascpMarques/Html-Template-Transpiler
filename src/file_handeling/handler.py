@@ -276,7 +276,7 @@ class FileHandler:
                 )
 
 
-def parse_htt_file(conteudo_ficheiro: str) -> dict[str, dict[str, object]]:
+def parse_htt_file(conteudo: str) -> dict[str, object]:
     """
         Retira os valores de config existentes no ficheiro ".httconfig"
         do projeto e adiciona esses mesmos valores à class
@@ -293,11 +293,11 @@ def parse_htt_file(conteudo_ficheiro: str) -> dict[str, dict[str, object]]:
     #     <empty new line>
     #     some :
     #         some
-    conteudo_ficheiro = \
+    conteudo_ficheiro: list[str] = \
         re.split(
             re.compile(r"^\n", re.MULTILINE),
-            conteudo_ficheiro
-        )
+            conteudo
+    )
 
     # Esta lista vai  guardar os valores em que
     # os caracteres desnecessários são retirados
@@ -308,7 +308,7 @@ def parse_htt_file(conteudo_ficheiro: str) -> dict[str, dict[str, object]]:
         lista_temp_valores_conf.append(word)
 
        # Formata os valores de acordo com a sua estrutura em python
-    def formatar_valor(valor: str) -> list[str] | int | float:
+    def formatar_valor(valor: str) -> str | list[str] | int | float | dict[str, str]:
         """
         De acordo com a estrutura do valor,
         devolve uma estrutura equivalente em python
@@ -345,7 +345,7 @@ def parse_htt_file(conteudo_ficheiro: str) -> dict[str, dict[str, object]]:
 
        # Cria o dicionário com os valores e chaves corretos
        # de config, para adicionar à struct
-    configs_valores_dict: dict[str, dict[str, any]] = dict(
+    configs_valores_dict: dict[str, object] = dict(
         (
             line[0: line.index(':')-1],   # key
             formatar_valor(

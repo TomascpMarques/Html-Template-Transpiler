@@ -69,7 +69,8 @@ class Cli:
                 pass
 
     def args_extrair_keys_and_vals(self, args: list[str]) -> dict[str, str]:
-        """Extrai todos os argumentos e valores passados pelo user, e transforma os num novo dict do
+        """
+        Extrai todos os argumentos e valores passados pelo user, e transforma os num novo dict
 
         Args:
             args (list[str]): Lista de argumentos e valores a usar
@@ -100,7 +101,8 @@ class Cli:
         # retorna o dicionario dos argumentos/valores extraidos
         return dict(zip(keys_args, values_args))
 
-    def arg_list_pre_validacao(self, args: list[str]) -> list[str]:
+    @staticmethod
+    def arg_list_pre_validacao(args: list[str]) -> list[str]:
         """Pre valida a lista de argumentos
 
         Args:
