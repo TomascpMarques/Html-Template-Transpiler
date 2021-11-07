@@ -33,7 +33,6 @@ class FileHandler:
     def __init__(self, path: str):
         self.caminho: str = path
 
-        print("->", self.caminho)
         # Normalização do camiho do file handler atual
         os.chdir(self.caminho)
 
@@ -180,7 +179,7 @@ class FileHandler:
                 )
         return conteudo
 
-    def criar_ficheiro(self, nome_ficheiro: str, path: str = '', extensao: str = '.htt') -> None:
+    def criar_ficheiro(self, nome_ficheiro: str, path: str = '', extensao: str = '.htt') -> str:
         """
         Cria um ficheiro a partir dos dados fornecidos
 
@@ -188,16 +187,22 @@ class FileHandler:
             nome_ficheiro (str): Nome a dar ao novo ficheiro
             path (str): Path a usar para criar o ficheiro
             extensao (str): Extensão a colocar no ficheiro
+
+        Returns:
+            Devolve o path para o novo ficheiro
         """
+        novo_nome_ficheiro: str = os.path.join(
+            self.caminho,
+            path,
+            nome_ficheiro + extensao
+        )
         with open(
-                os.path.join(
-                    self.caminho,
-                    (path + nome_ficheiro + extensao)
-                ),
+                novo_nome_ficheiro,
                 'w', encoding=sys.getfilesystemencoding()) as file:
             file.close()
+        return novo_nome_ficheiro
 
-    @staticmethod
+    @ staticmethod
     def criar_pasta(path: str) -> str:
         """
         Cria uma pasta para o output do programa
@@ -213,7 +218,8 @@ class FileHandler:
             self,
             conteudo: str | list,
             # nome do ficheiro (str) ou estrutura da linguagem python
-            ficheiro: os.DirEntry | str
+            ficheiro: str | os.DirEntry,
+            modo: str = 'w'
     ) -> None:
         """
         Escreve o conteudo fornecido num ficheiro especificado
@@ -230,23 +236,9 @@ class FileHandler:
         # Se for do tipo os.DirEntry, executa as operações de verificação
         # e uso do mesmo com os dados contido na estrutura
         if isinstance(ficheiro, os.DirEntry):
-            if ficheiro.name not in self.nome_ficheiros():
-                erro_exit(
-                    menssagen='O ficheiro dado não existe',
-                    time_stamp=True,
-                    tipo_erro='FileNaoExiste'
-                )
-            else:
-                pass
+            pass
         elif isinstance(ficheiro, str):
-            if ficheiro not in self.nome_ficheiros():
-                erro_exit(
-                    menssagen='O ficheiro dado não existe',
-                    time_stamp=True,
-                    tipo_erro='FileNaoExiste'
-                )
-            else:
-                pass
+            pass
         else:
             erro_exit(
                 menssagen='Erro ao tentar processar o ficheiro pedido',
@@ -258,7 +250,8 @@ class FileHandler:
         # para a execução do programa se o conteudo for inváilido
         with open(
             ficheiro,
-            'w', encoding=sys.getfilesystemencoding()
+            modo,
+            encoding=sys.getfilesystemencoding()
         ) as file:
             if isinstance(conteudo, str):
                 file.write(conteudo)
@@ -321,8 +314,8 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
         Returns:
             list[str] | int | float: Valor corretamente formatado
         """
-        # print(f'{valor=}')
-        # print(f'{list(map(lambda x: x.split(" > "),valor.split(",")))=}')
+        # (f'{valor=}')
+        # (f'{list(map(lambda x: x.split(" > "),valor.split(",")))=}')
         if '>' in valor:
             # dict de valores
             return dict(

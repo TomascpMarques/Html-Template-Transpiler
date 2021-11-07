@@ -15,7 +15,6 @@ def run_arg_files(path_ficheiros: str) -> None:
     Args:
         path_ficheiros (str): Caminho até à pasta que fornece os ficheiros alvo
     """
-    print("-><<<<<", path_ficheiros)
     Templater(path=path_ficheiros)
 
 
