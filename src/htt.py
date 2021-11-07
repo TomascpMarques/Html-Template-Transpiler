@@ -18,6 +18,5 @@ def main():
     running_cli = Cli(sys.argv, **CLI_ARGS)
     running_cli.run()
 
-
 if __name__ == '__main__':
     main()
