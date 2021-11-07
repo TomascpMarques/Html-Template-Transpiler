@@ -12,7 +12,7 @@ def main():
     """
     Função a correr se o ficheiro
     for invocado como um script.
-    wow. So cool.
+    wow. So cool. Test commit
     """
 
     running_cli = Cli(sys.argv, **CLI_ARGS)
