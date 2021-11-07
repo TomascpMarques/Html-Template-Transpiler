@@ -5,9 +5,8 @@
 
 
 from dataclasses import dataclass
-from os import DirEntry
-from types import FunctionType
-from typing import Any
+import os
+from typing import Any, Callable
 from cli.erros import erro_exit
 
 from file_handeling.handler import FileHandler, parse_htt_file
@@ -30,6 +29,16 @@ class TemplateFile:
 
     def __getattr__(self, key: str):
         return self.__dict__[key]
+
+    def items(self) -> tuple:
+        """
+        Devolve os atributuos da class numa tuple
+
+        Returns:
+            tuple: Um par com um dos atributuos da class
+        """
+        for key, val in self.__dict__.items():
+            yield (key, val)
 
     def get(self, key: str) -> Any:
         """
@@ -101,13 +110,15 @@ class TemplatingFiles(FileHandler):
         super().__init__(path)
 
         # Conteudo existente no path especifico
-        self.conteudo_dir: dict[str, DirEntry] = super().conteudo_dir_entrys()
+        self.conteudo_dir: dict[str, os.DirEntry] = \
+            super().conteudo_dir_entrys()
 
         # Leitura e atribuição dos ficheiros de templating htt
-        self.htt_templates: dict[str, object] = {}
+        self.htt_templates: dict[str, TemplateFile] = {}
         self.resolve_htt_templates()
 
         HTMLGenerator(
+            htt_templates=self.htt_templates,
             file_handeling=self,
             configs=configs
         )
@@ -141,11 +152,10 @@ class HTMLGeneratorTags:
     """
 
     def __init__(self) -> None:
-        self.funcs: dict[str, FunctionType] = dict(
+        self.funcs: dict[str, Callable] = dict(
             (func_name[:-4], self.__getattribute__(func_name))
             for func_name in self.__dir__() if '_tag' in func_name
         )
-        print(self.funcs)
 
     @staticmethod
     def h1_tag(conteudo: str, /, tag_id: str = '') -> str:
@@ -166,9 +176,15 @@ class HTMLGenerator(HTMLGeneratorTags):
     Some
     """
 
-    def __init__(self, file_handeling: FileHandler, configs: TemplateConfig):
+    def __init__(
+            self,
+            htt_templates: dict[str, TemplateFile],
+            file_handeling: FileHandler,
+            configs: TemplateConfig
+    ):
         super().__init__()
 
+        self.templates: dict[str, TemplateFile] = htt_templates
         self.file_handeling: FileHandler = file_handeling
         self.configs: TemplateConfig = configs
 
@@ -176,9 +192,34 @@ class HTMLGenerator(HTMLGeneratorTags):
             'htt-oputut'
         )
 
-        print(self.gen_html())
+        self.gen_html()
 
     def gen_html(self) -> None:
         """
         Generates HTML from the given htt template data
         """
+        for template_file_name, template in self.templates.items():
+            novo_conteudo_ficheiro: list[str] = []
+            nome_ficheiro: str = template_file_name[
+                :template_file_name.index('.')
+            ]
+
+            novo_ficheiro_path = self.file_handeling.criar_ficheiro(
+                nome_ficheiro=nome_ficheiro,
+                extensao='.html',
+                path=self.output_pasta_path,
+            )
+
+            for section_name, section in template.items():
+                novo_conteudo_ficheiro.append(
+                    self.funcs[section.get('tag')](
+                        section.get('conteudo'),
+                        tag_id=section_name
+                    )
+                )
+
+            self.file_handeling.escrever_conteudo_ficheiro(
+                conteudo=novo_conteudo_ficheiro,
+                ficheiro=novo_ficheiro_path,
+                modo='a'
+            )
