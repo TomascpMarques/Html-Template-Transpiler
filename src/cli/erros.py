@@ -17,6 +17,3 @@ def erro_exit(menssagen: str, tipo_erro: str = "Erro", time_stamp: bool = False)
     sys.exit(
         f'{tipo_erro}{" @ " + time.strftime("%H:%M:%S") if time_stamp else "" }:\n| {menssagen}\n'
     )
-
-
-# CLI_ERROS: dict = {}
