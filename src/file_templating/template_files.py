@@ -262,16 +262,22 @@ class HTMLGenerator(HTMLGeneratorTags):
             file_handeling: FileHandler,
             configs: TemplateConfig
     ):
+        # Setup of html tag generator
         super().__init__()
 
+        # htt templates
         self.templates: dict[str, TemplateFile] = htt_templates
+
+        # Needed Templater functionalitty
         self.file_handeling: FileHandler = file_handeling
         self.configs: TemplateConfig = configs
 
+        # End result folder
         self.output_pasta_path: str = self.file_handeling.criar_pasta(
             'htt-oputut'
         )
 
+        # Corre de uma maneira asyncrona e threaded
         asyncio.run(
             self.gen_html()
         )
