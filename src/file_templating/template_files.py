@@ -150,9 +150,15 @@ class HTMLGeneratorTags:
     """
 
     def __init__(self) -> None:
+        # Adiciona as funcs disponiveis para gerar tags de html
+        # através dos atributuos registados na class
         self.funcs: dict[str, Callable] = dict(
-            (func_name[:-4], self.__getattribute__(func_name))
-            for func_name in self.__dir__() if '_tag' in func_name
+            (
+                func_name[:-4],
+                self.__getattribute__(func_name)
+            )
+            for func_name in self.__dir__()
+            if '_tag' in func_name
         )
 
     @staticmethod
