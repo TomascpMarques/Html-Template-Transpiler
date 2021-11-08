@@ -276,29 +276,55 @@ class HTMLGenerator(HTMLGeneratorTags):
             self.gen_html()
         )
 
-    def setup_htt_css(self) -> str:
-        """
-        Setup do css defenido no template, a usar pelos ficheiros html
-        """
-        fonts_parse: list[str] = list(
-            font.replace(' ', '+') for _, font in self.configs.fontes.items()
-        )
+    @staticmethod
+    def _setup_css_fontes(fontes_escolhidas: list[str]) -> str:
+        fonts_css_import: str = "\t@import url('https://fonts.googleapis.com/css2?"
 
-        fonts: str = "\t@import url('https://fonts.googleapis.com/css2?"
-        fonts += 'family=' + fonts_parse[0]
-        for font in fonts_parse[1:]:
-            fonts += '&family=' + font
-        fonts += "');"
+        # Se não for escolhida nenhuma fonte, devolve uma str vazia
+        if fontes_escolhidas.__len__() < 1:
+            return ''
 
+        # Initial font setup
+        fonts_css_import += 'family=' + fontes_escolhidas[0]
+
+        # Itera sobre todas as fontes menos a já adicionada
+        for font in fontes_escolhidas[1:]:
+            fonts_css_import += '&family=' + font
+
+        # Termina a string de import das fontes
+        fonts_css_import += "');"
+
+        return fonts_css_import
+
+    def _setup_fonts_for_spef_tags(self) -> str:
         fonts_for_tags: str = '\n'.join(
             f"\n\t\t{tag} {{font-family: '{font}', sans-serif;}}"
             for tag, font in self.configs.fontes.items()
         )
+        return fonts_for_tags
 
+    def _setup_htt_css(self) -> str:
+        """
+        Setup do css defenido no template, a usar pelos ficheiros html
+        """
+        fonts_normalizadas_para_import: list[str] = list(
+            font.replace(' ', '+')
+            for _, font in self.configs.fontes.items()
+        )
+
+        # html file css setup, for fonts and tag specific fonts
         setup_htt_css: list[str] = [
             '\t<style type="text/css">\n',
-            '\t' + fonts + '\n',
-            '\t' + fonts_for_tags + '\n',
+            (
+                '\t'
+                + self._setup_css_fontes(fonts_normalizadas_para_import)
+                + '\n'
+            ),
+            (
+                '\t'
+                + self._setup_fonts_for_spef_tags()
+                + '\n'
+            ),
             '\t</style>'
         ]
 
@@ -317,7 +343,7 @@ class HTMLGenerator(HTMLGeneratorTags):
             '\t<meta name="viewport" content="width=device-width, initial-scale=1.0">',
             f'\t<title>{pag_titulo}</title>',
             f'\t<link rel="stylesheet" href="{self.configs.tema}.css">',
-            self.setup_htt_css(),
+            self._setup_htt_css(),
             '</head>\n',
         ]
 
@@ -382,32 +408,21 @@ class HTMLGenerator(HTMLGeneratorTags):
             modo='a+'
         )
 
-    async def gen_html(self) -> None:
+    def insert_css_style(self) -> None:
         """
-        Generates HTML from the given htt template data
+        Copia o ficheiro de estilo defenido através
+        da opção "tema" no ficheiro .htt-config,
+        para a pasta de output "htt-output"
         """
-
-        # Get templates to transpile
-        for template_name, template_file in self.templates.items():
-            # Get the running tasks
-            asyncio.get_running_loop().\
-                create_task(  # Create a new task for a new file
-                    # And make that task run on a new thread
-                    asyncio.to_thread(
-                        self.transpile_htt_to_html,
-                        template_name,
-                        template_file
-                    )
-            )
-
-        # Copie the CSS file
+        # Copie the CSS file to htt-output
         pat_to_css: str = self.file_handeling.criar_ficheiro(
             nome_ficheiro=self.configs.tema,
             extensao='.css',
             path=self.output_pasta_path
         )
 
-        css_dir = os.path.join(
+        # Get css file path
+        tema_css_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'css',
             (self.configs.tema + '.css')
@@ -417,6 +432,27 @@ class HTMLGenerator(HTMLGeneratorTags):
             ficheiro=pat_to_css,
             modo='a',
             conteudo=self.file_handeling.resolver_conteudo_ficheiro(
-                css_dir
+                tema_css_path
             )
         )
+
+    async def gen_html(self) -> None:
+        """
+        'Transpila' os conteudos dos templates htt, para html e css
+        de uma maneira asyncrona e threaded
+        """
+        # Ao utilizar o loop das running tasks, posso adicionar tasks ao mesmo loop,
+        # sem bloquear o loop que itera pelos templates, e o loop das tasks
+
+        # Get templates to transpile
+        for template_name, template_file in self.templates.items():
+            # Get the running tasks @ loop
+            asyncio.get_running_loop().\
+                create_task(  # Create a new task for a new file
+                    # And make that task run on a new thread
+                    asyncio.to_thread(
+                        self.transpile_htt_to_html,
+                        template_name,
+                        template_file
+                    )
+            )
