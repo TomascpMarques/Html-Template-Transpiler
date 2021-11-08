@@ -2,12 +2,13 @@
     Este módulo lida com os ficheiros de templating,
     Ler os mesmos, e interpretalos
 """
-
+# Other imports
 import asyncio
 import os
 from dataclasses import dataclass
 from typing import Any, Callable
 
+# Program Modules
 from cli.erros import erro_exit
 from file_handeling.handler import FileHandler, parse_htt_file
 from file_templating.template_conf import TemplateConfig
