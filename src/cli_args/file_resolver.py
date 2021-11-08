@@ -1,9 +1,11 @@
 """
-Desenvolvimento e resolving do argumento file
+Desenvolvimento e resolving do argumento <files> (--files)
 """
 
+# Other imports
 import re
 
+# Program Modules
 from cli.arg_setup import CliArgumento
 from file_templating.templater import Templater
 
@@ -15,6 +17,7 @@ def run_arg_files(path_ficheiros: str) -> None:
     Args:
         path_ficheiros (str): Caminho até à pasta que fornece os ficheiros alvo
     """
+    # Init o processo de templating com os ficheiros fornecidos
     Templater(path=path_ficheiros)
 
 
