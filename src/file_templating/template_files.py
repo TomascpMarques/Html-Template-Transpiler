@@ -240,6 +240,9 @@ class HTMLGenerator(HTMLGeneratorTags):
         self.file_handeling: FileHandler = file_handeling
         self.configs: TemplateConfig = configs
 
+        print(f'{self.configs.estilo=}')
+        print(f'{self.configs.tema=}')
+
         self.output_pasta_path: str = self.file_handeling.criar_pasta(
             'htt-oputut'
         )
@@ -247,6 +250,34 @@ class HTMLGenerator(HTMLGeneratorTags):
         asyncio.run(
             self.gen_html()
         )
+
+    def setup_htt_css(self) -> str:
+        """
+        Setup do css defenido no template, a usar pelos ficheiros html
+        """
+        fonts_parse: list[str] = list(
+            font.replace(' ', '+') for _, font in self.configs.fontes.items()
+        )
+
+        fonts: str = "\t@import url('https://fonts.googleapis.com/css2?"
+        fonts += 'family=' + fonts_parse[0]
+        for font in fonts_parse[1:]:
+            fonts += '&family=' + font
+        fonts += "');"
+
+        fonts_for_tags: str = '\n'.join(
+            f"\n\t\t{tag} {{font-family: '{font}', sans-serif;}}"
+            for tag, font in self.configs.fontes.items()
+        )
+
+        setup_htt_css: list[str] = [
+            '\t<style type="text/css">\n',
+            '\t' + fonts + '\n',
+            '\t' + fonts_for_tags + '\n',
+            '\t</style>'
+        ]
+
+        return ''.join(setup_htt_css)
 
     def gen_html_headers(self, pag_titulo: str, ficheiro_path: str | os.DirEntry) -> None:
         """
@@ -260,7 +291,8 @@ class HTMLGenerator(HTMLGeneratorTags):
             '\t<meta http-equiv="X-UA-Compatible" content="IE=edge">',
             '\t<meta name="viewport" content="width=device-width, initial-scale=1.0">',
             f'\t<title>{pag_titulo}</title>',
-            '<link rel="stylesheet" href="style.css">',
+            f'\t<link rel="stylesheet" href="{self.configs.tema}.css">',
+            self.setup_htt_css(),
             '</head>\n',
         ]
 
@@ -293,7 +325,7 @@ class HTMLGenerator(HTMLGeneratorTags):
             ficheiro_path=ficheiro_path
         )
 
-        novo_conteudo_ficheiro.append('<body>')
+        novo_conteudo_ficheiro.append('<body>\n<main>')
 
         # Itera sobre as secções no template
         for section_name, section in template.items():
@@ -314,7 +346,7 @@ class HTMLGenerator(HTMLGeneratorTags):
                 )
 
         # Close html body
-        novo_conteudo_ficheiro.append('</body>')
+        novo_conteudo_ficheiro.append('</main></body>')
         # Close html tag
         novo_conteudo_ficheiro.append('\n</html>')
 
@@ -342,3 +374,24 @@ class HTMLGenerator(HTMLGeneratorTags):
                         template_file
                     )
             )
+
+        # Copie the CSS file
+        pat_to_css: str = self.file_handeling.criar_ficheiro(
+            nome_ficheiro=self.configs.tema,
+            extensao='.css',
+            path=self.output_pasta_path
+        )
+
+        css_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'css',
+            (self.configs.tema + '.css')
+        )
+
+        self.file_handeling.escrever_conteudo_ficheiro(
+            ficheiro=pat_to_css,
+            modo='a',
+            conteudo=self.file_handeling.resolver_conteudo_ficheiro(
+                css_dir
+            )
+        )

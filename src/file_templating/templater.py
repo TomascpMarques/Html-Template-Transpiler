@@ -7,7 +7,7 @@ from file_handeling.handler import FileHandler
 from file_templating.template_conf import TemplateConfig
 from file_templating.template_files import TemplatingFiles
 
-TEMPLATE_CONFIG_NOMEACAO: str = '.httconfig'
+TEMPLATE_CONFIG_EXTENSAO: str = '.httconfig'
 
 
 class Templater(FileHandler):
@@ -23,7 +23,7 @@ class Templater(FileHandler):
         super().__init__(path)
 
         self.configs: TemplateConfig = TemplateConfig(
-            super().resolver_conteudo_ficheiro(TEMPLATE_CONFIG_NOMEACAO)
+            super().resolver_conteudo_ficheiro(TEMPLATE_CONFIG_EXTENSAO)
         )
 
         self.templating: TemplatingFiles = TemplatingFiles(
