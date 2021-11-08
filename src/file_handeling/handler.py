@@ -327,8 +327,10 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
                     )
                 )
             except ValueError:
+                error_mss = \
+                    f'Valor inválido encontrado ao processar as tags fornecidas.\nValor: "{valor}"'
                 erro_exit(
-                    menssagen=f'Valor inválido encontrado ao processar as tags fornecidas.\nValor: "{valor}"',
+                    menssagen=error_mss,
                     time_stamp=True,
                     tipo_erro='BadTagGiven'
                 )
