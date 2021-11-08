@@ -2,7 +2,10 @@
 Contêm os argumentos disponíveis para uso pela cli
 """
 
+# Other imports
 import re
+
+# Program Modules
 from cli.arg_setup import CliArgumento
 from cli.erros import erro_exit
 from cli_args.file_resolver import files_arg
@@ -16,16 +19,18 @@ def resolver_cli_args(arg: str, param: str) -> None:
         arg (str): Argumento a ser resolvidores
         param (any): Parametro a fornecer ao argumento
     """
+    # Corre um argumento (dos disponiveis) com o parametro fornecido
     CLI_ARGS[arg].run(param)
 
 
 def run_arg_help(arg: str) -> None:
     """
-    Fornece ajuda sobre um ou mais argumentos
+    Fornece ajuda sobre um argumento
 
     Args:
-        arg (str): Argumento/s a dar info sobre
+        arg (str): Ajuda sobre o argumento pedido
     """
+    # 'all' irá devolver todas as ajudas disponiveis sobre todos os argumentos
     if arg == 'all':
         print('Help:')
         for args, val in CLI_ARGS.items():
@@ -33,12 +38,15 @@ def run_arg_help(arg: str) -> None:
                 f' --{args}:{" "*2}{val.descricao_argumento}')
         return
 
+    # Ajuda pedida sobre um argumento não existente
+    # IRá devolver um erro
     if arg not in CLI_ARGS.keys():
         erro_exit(
             menssagen="O argumento dado não existe",
             time_stamp=True,
             tipo_erro="ArgInvalErr"
         )
+
     ajuda_arg = CLI_ARGS[arg].mensagem_ajuda
     desc_arg = CLI_ARGS[arg].descricao_argumento
     print(
