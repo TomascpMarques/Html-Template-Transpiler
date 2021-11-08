@@ -87,7 +87,7 @@ class TemplateFile():
         valid_keys: list[str] = ['tag', 'conteudo']
         for section in self.keys():
             section_keys = self.get(section).keys()
-            if set(valid_keys) != set(section_keys):
+            if not set(section_keys).issubset(set(valid_keys)):
                 error_mss = \
                     f'A secção <{section}>, contêm valores inválidos.\
                     \nEsperados: <{valid_keys}>\nDados:     <{list(section_keys)}>'
@@ -239,7 +239,7 @@ class HTMLGeneratorTags:
         """
         return self.tag_builder('p', conteudo, tag_id=tag_id)
 
-    def hr_tag(self, conteudo: str, /, tag_id: str = '') -> str:
+    def hr_tag(self, _conteudo: str, /, tag_id: str = '') -> str:
         """
         Args:
             conteudo (str): [description]
@@ -248,7 +248,7 @@ class HTMLGeneratorTags:
         Returns:
             str: [description]
         """
-        return self.tag_builder('hr', conteudo, tag_id=tag_id)
+        return self.tag_builder('hr', '', tag_id=tag_id)
 
 
 class HTMLGenerator(HTMLGeneratorTags):
