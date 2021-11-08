@@ -156,15 +156,14 @@ class HTMLGeneratorTags:
         )
 
     @staticmethod
-    def h_tag_builder(h_tag: str, conteudo: str, /, tag_id: str = '') -> str:
+    def tag_builder(h_tag: str, conteudo: str, /, tag_id: str = '') -> str:
         """
         Builds html h<n> tags
         """
         return f'<{h_tag} id="{tag_id.replace(" ","-")}">{conteudo}</{h_tag}>'
 
     def h1_tag(self, conteudo: str, /, tag_id: str = '') -> str:
-        """[summary]
-
+        """
         Args:
             conteudo (str): [description]
             id (str, optional): [description]. Defaults to ''.
@@ -172,11 +171,10 @@ class HTMLGeneratorTags:
         Returns:
             str: [description]
         """
-        return self.h_tag_builder('h1', conteudo, tag_id=tag_id)
+        return self.tag_builder('h1', conteudo, tag_id=tag_id)
 
     def h2_tag(self, conteudo: str, /, tag_id: str = '') -> str:
-        """[summary]
-
+        """
         Args:
             conteudo (str): [description]
             id (str, optional): [description]. Defaults to ''.
@@ -184,11 +182,10 @@ class HTMLGeneratorTags:
         Returns:
             str: [description]
         """
-        return self.h_tag_builder('h2', conteudo, tag_id=tag_id)
+        return self.tag_builder('h2', conteudo, tag_id=tag_id)
 
     def h3_tag(self, conteudo: str, /, tag_id: str = '') -> str:
-        """[summary]
-
+        """
         Args:
             conteudo (str): [description]
             id (str, optional): [description]. Defaults to ''.
@@ -196,11 +193,10 @@ class HTMLGeneratorTags:
         Returns:
             str: [description]
         """
-        return self.h_tag_builder('h3', conteudo, tag_id=tag_id)
+        return self.tag_builder('h3', conteudo, tag_id=tag_id)
 
     def h4_tag(self, conteudo: str, /, tag_id: str = '') -> str:
-        """[summary]
-
+        """
         Args:
             conteudo (str): [description]
             id (str, optional): [description]. Defaults to ''.
@@ -208,11 +204,10 @@ class HTMLGeneratorTags:
         Returns:
             str: [description]
         """
-        return self.h_tag_builder('h4', conteudo, tag_id=tag_id)
+        return self.tag_builder('h4', conteudo, tag_id=tag_id)
 
     def h5_tag(self, conteudo: str, /, tag_id: str = '') -> str:
-        """[summary]
-
+        """
         Args:
             conteudo (str): [description]
             id (str, optional): [description]. Defaults to ''.
@@ -220,7 +215,29 @@ class HTMLGeneratorTags:
         Returns:
             str: [description]
         """
-        return self.h_tag_builder('h5', conteudo, tag_id=tag_id)
+        return self.tag_builder('h5', conteudo, tag_id=tag_id)
+
+    def span_tag(self, conteudo: str, /, tag_id: str = '') -> str:
+        """
+        Args:
+            conteudo (str): [description]
+            id (str, optional): [description]. Defaults to ''.
+
+        Returns:
+            str: [description]
+        """
+        return self.tag_builder('span', conteudo, tag_id=tag_id)
+
+    def p_tag(self, conteudo: str, /, tag_id: str = '') -> str:
+        """
+        Args:
+            conteudo (str): [description]
+            id (str, optional): [description]. Defaults to ''.
+
+        Returns:
+            str: [description]
+        """
+        return self.tag_builder('p', conteudo, tag_id=tag_id)
 
 
 class HTMLGenerator(HTMLGeneratorTags):
@@ -239,9 +256,6 @@ class HTMLGenerator(HTMLGeneratorTags):
         self.templates: dict[str, TemplateFile] = htt_templates
         self.file_handeling: FileHandler = file_handeling
         self.configs: TemplateConfig = configs
-
-        print(f'{self.configs.estilo=}')
-        print(f'{self.configs.tema=}')
 
         self.output_pasta_path: str = self.file_handeling.criar_pasta(
             'htt-oputut'
