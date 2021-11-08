@@ -8,7 +8,8 @@ body {
   align-content: center;
   justify-content: center;
   align-items: center;
-  margin: 2%;
+  height: 100%;
+  margin: 3%;
 }
 
 ::-webkit-scrollbar {
