@@ -280,7 +280,9 @@ class HTMLGenerator(HTMLGeneratorTags):
     def _setup_css_fontes(fontes_escolhidas: list[str]) -> str:
         fonts_css_import: str = "\t@import url('https://fonts.googleapis.com/css2?"
 
-        # Se não for escolhida nenhuma fonte, devolve uma str vazia
+        # Se não for escolhida nenhuma fonte, devolve uma str vazia.
+        # O setup do css lida com o facto de não se escolher nehuma fonte,
+        # atribui a fonte 'Arial' a todas as tags
         if fontes_escolhidas.__len__() < 1:
             return ''
 
@@ -291,15 +293,14 @@ class HTMLGenerator(HTMLGeneratorTags):
         for font in fontes_escolhidas[1:]:
             fonts_css_import += '&family=' + font
 
-        # Termina a string de import das fontes
-        fonts_css_import += "');"
-
-        return fonts_css_import
+        # Termina a string de import das fontes e devolve a mesma
+        return (fonts_css_import + "');")
 
     def _setup_fonts_for_spef_tags(self) -> str:
         fonts_for_tags: str = '\n'.join(
             f"\n\t\t{tag} {{font-family: '{font}', sans-serif;}}"
-            for tag, font in self.configs.fontes.items()
+            for tag, font in
+            self.configs.fontes.items()
         )
         return fonts_for_tags
 
@@ -414,23 +415,21 @@ class HTMLGenerator(HTMLGeneratorTags):
         da opção "tema" no ficheiro .htt-config,
         para a pasta de output "htt-output"
         """
-        # Copie the CSS file to htt-output
-        pat_to_css: str = self.file_handeling.criar_ficheiro(
-            nome_ficheiro=self.configs.tema,
-            extensao='.css',
-            path=self.output_pasta_path
-        )
 
-        # Get css file path
+        # Get css theme file path
         tema_css_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'css',
             (self.configs.tema + '.css')
         )
 
+        # Write css file to htt-output
         self.file_handeling.escrever_conteudo_ficheiro(
-            ficheiro=pat_to_css,
-            modo='a',
+            ficheiro=os.path.join(
+                self.output_pasta_path,
+                (self.configs.tema + '.css')
+            ),
+            modo='w',
             conteudo=self.file_handeling.resolver_conteudo_ficheiro(
                 tema_css_path
             )
