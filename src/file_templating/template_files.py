@@ -3,18 +3,18 @@
     Ler os mesmos, e interpretalos
 """
 
-
-from dataclasses import dataclass
+import asyncio
 import os
+from dataclasses import dataclass
 from typing import Any, Callable
-from cli.erros import erro_exit
 
+from cli.erros import erro_exit
 from file_handeling.handler import FileHandler, parse_htt_file
 from file_templating.template_conf import TemplateConfig
 
 
 @dataclass()
-class TemplateFile:
+class TemplateFile():
     """
     Some Some
     """
@@ -28,7 +28,7 @@ class TemplateFile:
         self.validar_keys_template()
 
     def __getattr__(self, key: str):
-        return self.__dict__[key]
+        return self.__dict__.get(key)
 
     def items(self) -> tuple:
         """
@@ -144,8 +144,6 @@ class TemplatingFiles(FileHandler):
                 )
 
 
-###############################################################################
-
 class HTMLGeneratorTags:
     """
     AAAA
@@ -158,7 +156,13 @@ class HTMLGeneratorTags:
         )
 
     @staticmethod
-    def h1_tag(conteudo: str, /, tag_id: str = '') -> str:
+    def h_tag_builder(h_tag: str, conteudo: str, /, tag_id: str = '') -> str:
+        """
+        Builds html h<n> tags
+        """
+        return f'<{h_tag} id="{tag_id.replace(" ","-")}">{conteudo}</{h_tag}>'
+
+    def h1_tag(self, conteudo: str, /, tag_id: str = '') -> str:
         """[summary]
 
         Args:
@@ -168,7 +172,55 @@ class HTMLGeneratorTags:
         Returns:
             str: [description]
         """
-        return f'<h1 id="{tag_id.replace(" ","-")}">{conteudo}</h1>'
+        return self.h_tag_builder('h1', conteudo, tag_id=tag_id)
+
+    def h2_tag(self, conteudo: str, /, tag_id: str = '') -> str:
+        """[summary]
+
+        Args:
+            conteudo (str): [description]
+            id (str, optional): [description]. Defaults to ''.
+
+        Returns:
+            str: [description]
+        """
+        return self.h_tag_builder('h2', conteudo, tag_id=tag_id)
+
+    def h3_tag(self, conteudo: str, /, tag_id: str = '') -> str:
+        """[summary]
+
+        Args:
+            conteudo (str): [description]
+            id (str, optional): [description]. Defaults to ''.
+
+        Returns:
+            str: [description]
+        """
+        return self.h_tag_builder('h3', conteudo, tag_id=tag_id)
+
+    def h4_tag(self, conteudo: str, /, tag_id: str = '') -> str:
+        """[summary]
+
+        Args:
+            conteudo (str): [description]
+            id (str, optional): [description]. Defaults to ''.
+
+        Returns:
+            str: [description]
+        """
+        return self.h_tag_builder('h4', conteudo, tag_id=tag_id)
+
+    def h5_tag(self, conteudo: str, /, tag_id: str = '') -> str:
+        """[summary]
+
+        Args:
+            conteudo (str): [description]
+            id (str, optional): [description]. Defaults to ''.
+
+        Returns:
+            str: [description]
+        """
+        return self.h_tag_builder('h5', conteudo, tag_id=tag_id)
 
 
 class HTMLGenerator(HTMLGeneratorTags):
@@ -192,34 +244,101 @@ class HTMLGenerator(HTMLGeneratorTags):
             'htt-oputut'
         )
 
-        self.gen_html()
+        asyncio.run(
+            self.gen_html()
+        )
 
-    def gen_html(self) -> None:
+    def gen_html_headers(self, pag_titulo: str, ficheiro_path: str | os.DirEntry) -> None:
         """
-        Generates HTML from the given htt template data
+        Escreve os cabeçalhos html corretos no ficheiro
         """
-        for template_file_name, template in self.templates.items():
-            novo_conteudo_ficheiro: list[str] = []
-            nome_ficheiro: str = template_file_name[
-                :template_file_name.index('.')
-            ]
+        conteudo: list[str] = [
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<head>',
+            '\t<meta charset="UTF-8">',
+            '\t<meta http-equiv="X-UA-Compatible" content="IE=edge">',
+            '\t<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+            f'\t<title>{pag_titulo}</title>',
+            '<link rel="stylesheet" href="style.css">',
+            '</head>\n',
+        ]
 
-            novo_ficheiro_path = self.file_handeling.criar_ficheiro(
-                nome_ficheiro=nome_ficheiro,
-                extensao='.html',
-                path=self.output_pasta_path,
-            )
+        # Escreve o conteudo html no ficheiro
+        self.file_handeling.escrever_conteudo_ficheiro(
+            conteudo=conteudo,
+            ficheiro=ficheiro_path,
+            modo='a+'
+        )
 
-            for section_name, section in template.items():
+    def transpile_htt_to_html(self, template_file_name: str, template: TemplateFile):
+        """
+        Asynchronously translate the htt file contents and write them to the html file
+        """
+
+        novo_conteudo_ficheiro: list[str] = []
+        nome_ficheiro: str = template_file_name[
+            :template_file_name.index('.')
+        ]
+
+        # Cria o novo ficheiro html
+        ficheiro_path = self.file_handeling.criar_ficheiro(
+            nome_ficheiro=nome_ficheiro,
+            extensao='.html',
+            path=self.output_pasta_path,
+        )
+
+        self.gen_html_headers(
+            nome_ficheiro.capitalize(),
+            ficheiro_path=ficheiro_path
+        )
+
+        novo_conteudo_ficheiro.append('<body>')
+
+        # Itera sobre as secções no template
+        for section_name, section in template.items():
+            # Adiciona ao novo conteudo para o ficheiro html
+            try:
                 novo_conteudo_ficheiro.append(
+                    # Chama as funções adequadas para as tags dadas
                     self.funcs[section.get('tag')](
                         section.get('conteudo'),
                         tag_id=section_name
                     )
                 )
+            except KeyError:
+                erro_exit(
+                    menssagen=f'Valor <{section.get("tag")}> não está implementado para tags',
+                    tipo_erro='FuncNotImplemented',
+                    time_stamp=True
+                )
 
-            self.file_handeling.escrever_conteudo_ficheiro(
-                conteudo=novo_conteudo_ficheiro,
-                ficheiro=novo_ficheiro_path,
-                modo='a'
+        # Close html body
+        novo_conteudo_ficheiro.append('</body>')
+        # Close html tag
+        novo_conteudo_ficheiro.append('\n</html>')
+
+        # Escreve o conteudo html no ficheiro
+        self.file_handeling.escrever_conteudo_ficheiro(
+            conteudo=novo_conteudo_ficheiro,
+            ficheiro=ficheiro_path,
+            modo='a+'
+        )
+
+    async def gen_html(self) -> None:
+        """
+        Generates HTML from the given htt template data
+        """
+
+        # Get templates to transpile
+        for template_name, template_file in self.templates.items():
+            # Get the running tasks
+            asyncio.get_running_loop().\
+                create_task(  # Create a new task for a new file
+                    # And make that task run on a new thread
+                    asyncio.to_thread(
+                        self.transpile_htt_to_html,
+                        template_name,
+                        template_file
+                    )
             )
