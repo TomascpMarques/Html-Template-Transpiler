@@ -314,19 +314,24 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
         Returns:
             list[str] | int | float: Valor corretamente formatado
         """
-        # (f'{valor=}')
-        # (f'{list(map(lambda x: x.split(" > "),valor.split(",")))=}')
         if '>' in valor:
-            # dict de valores
-            return dict(
-                # a func map acaba por dividir o conteudo
-                # em listas de strings de 2 valores cada,
-                # o que permite transformar essas listas em Dicts
-                map(
-                    lambda x: x.split(' > '),
-                    valor.split(',')
+            try:
+                # dict de valores
+                return dict(
+                    # a func map acaba por dividir o conteudo
+                    # em listas de strings de 2 valores cada,
+                    # o que permite transformar essas listas em Dicts
+                    map(
+                        lambda x: x.split(' > '),
+                        valor.split(',')
+                    )
                 )
-            )
+            except ValueError:
+                erro_exit(
+                    menssagen=f'Valor inválido encontrado ao processar as tags fornecidas.\nValor: "{valor}"',
+                    time_stamp=True,
+                    tipo_erro='BadTagGiven'
+                )
         if ',' in valor:
             # lista de strings
             return valor.split(',')

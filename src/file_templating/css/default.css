@@ -1,13 +1,14 @@
 body {
   padding: 0;
-  margin: 0;
   background-color: #e9e9e9;
   display: flex;
   justify-items: center;
   flex-direction: column;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
   align-items: center;
-  height: 100vh;
+  margin: 2%;
 }
 
 ::-webkit-scrollbar {
@@ -23,17 +24,20 @@ body {
 
 main {
   font-family: Arial;
-  width: 81vw;
+  max-width: 70vw;
+  width: fit-content;
   background-color: #f3f3f3;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow: auto;
+  align-items: flex-start;
   border-left: 3px solid gainsboro;
   border-right: 3px solid gainsboro;
   box-shadow: 0px 0px 6px 4px gainsboro;
-  padding-bottom: 2.4rem;
-  padding-top: 1.4rem;
+  padding: 2rem;
+  border-radius: 10px;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  flex-wrap: nowrap;
 }
 
 span {
@@ -45,6 +49,7 @@ span {
   letter-spacing: 0.5px;
   word-spacing: 0.1rem;
   max-width: 35vw;
+  width: fit-content;
   border-radius: 8px;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
@@ -55,13 +60,13 @@ span {
 }
 
 hr {
-  width: 70vw;
-  height: 2px;
+  width: 60%;
+  height: 3px;
   border-radius: 50px;
-  margin: 2rem;
-  background-color: #f2f2f2;
+  margin: 1.5rem;
+  background-color: #e6e6e6;
   box-shadow: none;
-  border: 1px solid #f2f2f2;
+  border: 1px solid #e6e6e6;
 }
 
 h1 {
@@ -175,7 +180,7 @@ p {
   line-height: 1.6rem;
   letter-spacing: 0.5px;
   word-spacing: 0.1rem;
-  max-width: 38.5vw;
+  max-width: 50vw;
   border-radius: 5px;
   box-shadow: inset 0px 0px 4px 1px #e7e7e7;
   overflow-wrap: break-word;

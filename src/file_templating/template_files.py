@@ -239,6 +239,17 @@ class HTMLGeneratorTags:
         """
         return self.tag_builder('p', conteudo, tag_id=tag_id)
 
+    def hr_tag(self, conteudo: str, /, tag_id: str = '') -> str:
+        """
+        Args:
+            conteudo (str): [description]
+            id (str, optional): [description]. Defaults to ''.
+
+        Returns:
+            str: [description]
+        """
+        return self.tag_builder('hr', conteudo, tag_id=tag_id)
+
 
 class HTMLGenerator(HTMLGeneratorTags):
     """
