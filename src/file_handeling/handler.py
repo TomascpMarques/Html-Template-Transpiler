@@ -8,29 +8,35 @@ Lida com ficheiros e as suas pastas
 #     |_ .httconfig
 #     |_ file1.htt
 #     |_ file2.htt
+####### Ainda por implementar #######
 #     |_ /pasta_2
 #         |_ file3.htt
 # """
 
-
+# Other imports
 import os
 import sys
 import re
 from typing import Any
 
+# Program Modules
 from cli.erros import erro_exit
 
-
+# Extensões utilizadas pelo sistema de templating
 HTT_FILE_EXTENSIONS: list[str] = ['.htt', '.httconfig']
 
 
 class FileHandler:
     """
-    Esta classe gere a utilização de ficheiros e pastas de acordo com as necessidades
-    do programa
+    A classe gere a utilização de ficheiros e pastas
+    de acordo com as necessidades do programa,
+
+    Permite resolver conteudo de ficheiro/s através de paths e os.DirEntrys.
+    Escrever conteudo em ficheiros, ler ficheiros e criar tanto pastas como ficheiros.
     """
 
     def __init__(self, path: str):
+        # Defenição do caminho a ser utlizado pelo handler durante a sua existência
         self.caminho: str = path
 
         # Normalização do camiho do file handler atual
@@ -43,7 +49,7 @@ class FileHandler:
                 entrada.is_file()
                 and entrada.name[entrada.name.index('.'):]
                 in HTT_FILE_EXTENSIONS
-            ) or entrada.is_dir()
+            ) or entrada.is_dir()  # Permite aceitar pastas
         )
 
         # Verifica se a pasta alvo contêm o conteudo minímo necessário
@@ -214,12 +220,12 @@ class FileHandler:
 
         return path
 
+    @staticmethod
     def escrever_conteudo_ficheiro(
-            self,
-            conteudo: str | list,
-            # nome do ficheiro (str) ou estrutura da linguagem python
-            ficheiro: str | os.DirEntry,
-            modo: str = 'w'
+        conteudo: str | list,
+        # nome do ficheiro (str) ou estrutura da linguagem python
+        ficheiro: str | os.DirEntry,
+        modo: str = 'w'
     ) -> None:
         """
         Escreve o conteudo fornecido num ficheiro especificado
@@ -283,9 +289,9 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
     # Divide o conteudo do ficheiro através de new-lines vazias
     # Ex:
     #     fontes :
-    #         sdasdas,
-    #         asdasd,
-    #     <empty new line>
+    #         some > foo,
+    #         emos > bar
+    #     <empty new line>\t
     #     some :
     #         some
     conteudo_ficheiro: list[str] = \
