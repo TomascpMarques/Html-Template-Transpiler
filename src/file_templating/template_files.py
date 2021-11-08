@@ -294,7 +294,7 @@ class HTMLGenerator(HTMLGeneratorTags):
             fonts_css_import += '&family=' + font
 
         # Termina a string de import das fontes e devolve a mesma
-        return (fonts_css_import + "');")
+        return fonts_css_import + "');"
 
     def _setup_fonts_for_spef_tags(self) -> str:
         fonts_for_tags: str = '\n'.join(
