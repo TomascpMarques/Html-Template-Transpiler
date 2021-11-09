@@ -468,3 +468,10 @@ class HTMLGenerator(HTMLGeneratorTags):
                         template_file
                     )
             )
+
+        # Add css style
+        asyncio.get_running_loop().create_task(
+            asyncio.to_thread(
+                self.insert_css_style
+            )
+        )
