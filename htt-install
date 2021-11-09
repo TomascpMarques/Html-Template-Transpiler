@@ -1,15 +1,18 @@
 #!/bin/bash
 
-# RUN AS SUDO
-
 # Setup repo store folder
-cd ~/
+cd "/home/$USER"
 mkdir .htt
 cd .htt
 
 # Get repository from url
 git clone https://github.com/TomascpMarques/Html-Template-Transpiler.git
 
-# Make available to everyone
+# Move to project folder
+cd 'Html-Template-Transpiler'
+
+# Give execution permition
 chmod +x htt
-cp htt /usr/bin/
+
+# Make available from everywher
+sudo cp htt /usr/bin/
