@@ -147,7 +147,7 @@ class TemplatingFiles(FileHandler):
 
 class HTMLGeneratorTags:
     """
-    AAAA
+    Gera tags de HTML
     """
 
     def __init__(self) -> None:
@@ -260,7 +260,7 @@ class HTMLGeneratorTags:
 
 class HTMLGenerator(HTMLGeneratorTags):
     """
-    Some
+    Reads template file content and generates HTML from it.
     """
 
     def __init__(
