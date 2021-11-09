@@ -116,7 +116,7 @@ class TemplatingFiles(FileHandler):
 
         # Leitura e atribuição dos ficheiros de templating htt
         self.htt_templates: dict[str, TemplateFile] = {}
-        asyncio.run(
+        asyncio.gather(
             self.resolve_htt_templates()
         )
 
@@ -133,6 +133,7 @@ class TemplatingFiles(FileHandler):
         for chave, dir_entry in self.conteudo_dir.items():
             # só lê o ficheiro se não for um file de config e não uma pasta
             if '.httconfig' not in chave and dir_entry.is_file():
+                # Async set new htt template in, self.htt_templates
                 asyncio.get_running_loop().create_task(
                     asyncio.to_thread(
                         self.htt_templates.setdefault,
@@ -141,8 +142,7 @@ class TemplatingFiles(FileHandler):
                             # Análise do ficheiro e parse do mesmo
                             parse_htt_file(
                                 # leitura do conteudo do ficheiro no disco
-                                super().
-                                resolver_conteudo_ficheiro(dir_entry.path)
+                                self.resolver_conteudo_dir_entry(dir_entry)
                             )
                         ),
 
