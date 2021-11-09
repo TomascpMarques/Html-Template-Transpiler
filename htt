@@ -1,4 +1,6 @@
 #!/bin/bash
 
+cd "/home/$USER/.htt/Html-Template-Transpiler"
+
 source 'virtual_env/bin/activate'
 python 'src/htt.py' $@
