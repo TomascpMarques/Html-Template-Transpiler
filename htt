@@ -1,0 +1,4 @@
+#!/bin/bash
+
+source 'virtual_env/bin/activate'
+python 'src/htt.py' $@
