@@ -1,19 +1,24 @@
 """
-Desenvolvimento e resolving do argumento file
+Desenvolvimento e resolving do argumento <files> (--files)
 """
 
+# Other imports
 import re
 
+# Program Modules
 from cli.arg_setup import CliArgumento
-from file_handeling.handler import FileHandler
+from file_templating.templater import Templater
 
 
 def run_arg_files(path_ficheiros: str) -> None:
     """
-    some some here
+    Resolve o argumento para lidar com os ficheiros dados
+
+    Args:
+        path_ficheiros (str): Caminho até à pasta que fornece os ficheiros alvo
     """
-    some = FileHandler(path_ficheiros)
-    print(some.resolver_ficheiro('.httconfig'))
+    # Init o processo de templating com os ficheiros fornecidos
+    Templater(path=path_ficheiros)
 
 
 files_mens_ajuda: str = \

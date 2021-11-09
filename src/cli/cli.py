@@ -2,8 +2,10 @@
 Modulo relativo à interação do user com o programa através do terminal
 """
 
+# Other imports
 import re
 
+# Progrma Modules
 from cli.erros import erro_exit
 from cli.arg_setup import CliArgumento, validar_argumento
 from cli_args.args import CLI_ARGS, resolver_cli_args
@@ -16,23 +18,25 @@ class Cli:
     com os pedidos do utilizador
     """
 
-    def __init__(self, args: list[str], **kwargs: CliArgumento):
-        # Toma os argumentos disponiveis
-        self.argumentos: dict[str, CliArgumento] = dict(
+    def __init__(self, args_recebidos: list[str], **kwargs: CliArgumento):
+        # Toma os argumentos disponiveis ao progrma
+        self.argumentos_possiveis: dict[str, CliArgumento] = dict(
             (key, val) for (key, val) in kwargs.items()
         )
-        # valida os argumentos da cli contro os disponiveis
-        self.__parse_cli_args(args)
+
+        # valida os argumentos da cli contra os disponiveis
+        self.__parse_cli_args(args_recebidos)
 
     def run(self) -> None:
         """
         Corre o programa com os argumentos fornecidos
         """
-        for arg, val in self.argumentos.items():
-            resolver_cli_args(arg, val)
+        for argumento, arg_valor in self.argumentos_parssed.items():
+            resolver_cli_args(argumento, arg_valor)
 
     def __parse_cli_args(self, args: list[str]):
-        """Parse os argurmentos dados ao correr o script
+        """
+        Parse dos argurmentos dados ao correr o script
 
         Args:
             args(list[str]): Os argumentos usados ao correr o script
@@ -45,7 +49,7 @@ class Cli:
         self.arg_list_pre_validacao(args)
 
         # Atualizar o campo "argumentos" com o dicionario dos argumentos/valores extraidos
-        self.argumentos = self.args_extrair_keys_and_vals(args)
+        self.argumentos_parssed = self.args_extrair_keys_and_vals(args)
 
         # Valida os argumentos extraidos de "args"
         self.validar_args_extraidos()
@@ -55,21 +59,20 @@ class Cli:
         Valida os argumentos extraidos, contra os argumentos já defenidos
         """
         # Valida os argumentos extraidos
-        for arg in self.argumentos:
+        for arg in self.argumentos_parssed:
             if not validar_argumento(
-                CLI_ARGS[arg],
-                self.argumentos[arg]
+                CLI_ARGS[arg],  # Argumento a validar o "arg"" contra
+                self.argumentos_parssed[arg]  # O valor do argumento dado
             ):
                 erro_exit(
                     menssagen=f'{CLI_ARGS[arg].erro_validacao}',
                     time_stamp=True,
                     tipo_erro='Erro_Arg_Validacao'
                 )
-            else:
-                pass
 
     def args_extrair_keys_and_vals(self, args: list[str]) -> dict[str, str]:
-        """Extrai todos os argumentos e valores passados pelo user, e transforma os num novo dict do
+        """
+        Extrai todos os argumentos e valores passados pelo user, e transforma-os num novo dict
 
         Args:
             args (list[str]): Lista de argumentos e valores a usar
@@ -81,26 +84,27 @@ class Cli:
         values_args: list[str] = []
 
         # retira as keys dos argumentos
-        for item in args:
-            if re.compile(r'--\w+').match(item) is not None:
+        for arg in args:
+            if re.compile(r'--\w+').match(arg) is not None:
                 # item[2:] -> Ignora os simbolos pre chave ex: "(--)chave"
                 # Verifica se o argumento fornecido pelo user existe
-                if self.arg_existe(item[2:]):
-                    keys_args.append(item[2:])
+                if self.arg_existe(arg[2:]):
+                    keys_args.append(arg[2:])
                 else:
                     # Se não existir o programa para, e devolve um erro
                     erro_exit(
                         tipo_erro='Erro_Arg_Fornecido',
                         time_stamp=True,
-                        menssagen=f'O argumento, <{item}> não existe nos argumentos disponíveis',
+                        menssagen=f'O argumento, <{arg}> não existe nos argumentos disponíveis',
                     )
             else:
-                values_args.append(item)
+                values_args.append(arg)
 
         # retorna o dicionario dos argumentos/valores extraidos
         return dict(zip(keys_args, values_args))
 
-    def arg_list_pre_validacao(self, args: list[str]) -> list[str]:
+    @staticmethod
+    def arg_list_pre_validacao(args: list[str]) -> list[str]:
         """Pre valida a lista de argumentos
 
         Args:
@@ -139,4 +143,4 @@ class Cli:
         Returns:
             bool: Se existir retorna True, se não False
         """
-        return self.argumentos.keys().__contains__(arg)
+        return self.argumentos_possiveis.keys().__contains__(arg)

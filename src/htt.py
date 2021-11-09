@@ -11,12 +11,12 @@ from cli_args.args import CLI_ARGS
 def main():
     """
     Função a correr se o ficheiro
-    for invocado como um script
+    for invocado como um script.
+    wow. So cool. Test commit
     """
 
     running_cli = Cli(sys.argv, **CLI_ARGS)
     running_cli.run()
-
 
 if __name__ == '__main__':
     main()
