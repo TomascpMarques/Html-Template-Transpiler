@@ -11,8 +11,7 @@ from dataclasses import dataclass, field
 from cli.erros import erro_exit
 
 
-# A utilização de slots permite poupar memóriacom os atribts. da class
-@dataclass(slots=True)
+@dataclass()
 class CliArgumento():
     """
     Define a estrutura de um possivél argumento aceitável pela aplicação/cli

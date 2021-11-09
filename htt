@@ -2,4 +2,4 @@
 
 cd "/home/$USER/.htt/Html-Template-Transpiler"
 
-python3 'src/htt.py' $@
+python3.10 'src/htt.py' $@
