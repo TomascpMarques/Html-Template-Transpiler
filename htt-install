@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# RUN AS SUDO
+
+# Get repository from url
+git clone https://github.com/TomascpMarques/Html-Template-Transpiler.git
+
+chmod +x htt
+cp htt /usr/bin/
