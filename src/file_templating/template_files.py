@@ -116,7 +116,9 @@ class TemplatingFiles(FileHandler):
 
         # Leitura e atribuição dos ficheiros de templating htt
         self.htt_templates: dict[str, TemplateFile] = {}
-        self.resolve_htt_templates()
+        asyncio.run(
+            self.resolve_htt_templates()
+        )
 
         HTMLGenerator(
             htt_templates=self.htt_templates,
@@ -124,24 +126,27 @@ class TemplatingFiles(FileHandler):
             configs=configs
         )
 
-    def resolve_htt_templates(self) -> None:
+    async def resolve_htt_templates(self) -> None:
         """
         Resolve os ficheiros htt e retira a informação inerente aos mesmos
         """
         for chave, dir_entry in self.conteudo_dir.items():
             # só lê o ficheiro se não for um file de config e não uma pasta
             if '.httconfig' not in chave and dir_entry.is_file():
-                self.htt_templates.setdefault(
-                    chave,
-                    # Criação do TemplateFile através da info. dada
-                    TemplateFile(
-                        # Análise do ficheiro e parse do mesmo
-                        parse_htt_file(
-                            # leitura do conteudo do ficheiro no disco
-                            super().
-                            resolver_conteudo_ficheiro(dir_entry.path)
-                        )
-                    ),
+                asyncio.get_running_loop().create_task(
+                    asyncio.to_thread(
+                        self.htt_templates.setdefault,
+                        chave,
+                        TemplateFile(
+                            # Análise do ficheiro e parse do mesmo
+                            parse_htt_file(
+                                # leitura do conteudo do ficheiro no disco
+                                super().
+                                resolver_conteudo_ficheiro(dir_entry.path)
+                            )
+                        ),
+
+                    )
                 )
 
 
