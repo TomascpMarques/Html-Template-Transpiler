@@ -8,7 +8,7 @@ from file_handeling.handler import parse_htt_file
 
 
 @dataclass(slots=True)
-class Configs(object):
+class Configs():
     """
     Gere e armazena as configurações para o templating
     do site a gerar
