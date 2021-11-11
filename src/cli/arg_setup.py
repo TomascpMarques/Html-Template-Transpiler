@@ -43,7 +43,7 @@ class CliArgumento():
     )
 
 
-def validar_argumento(campo: CliArgumento, arg: str) -> str | None:
+def validar_argumento(campo: CliArgumento, arg: str) -> str:
     """
     Valida um argumento com o seu regex de validação
 
@@ -56,5 +56,4 @@ def validar_argumento(campo: CliArgumento, arg: str) -> str | None:
             tipo_erro="Err_Arg_Validcao",
             menssagen=campo.erro_validacao,
         )
-        return None
     return campo.func_validacao(arg)

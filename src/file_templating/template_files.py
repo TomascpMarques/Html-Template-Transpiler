@@ -6,7 +6,8 @@
 import asyncio
 import os
 from dataclasses import dataclass
-from typing import Any, Callable
+from types import FunctionType
+from typing import Any, Dict
 
 # Program Modules
 from cli.erros import erro_exit
@@ -116,7 +117,7 @@ class TemplatingFiles(FileHandler):
 
         # Leitura e atribuição dos ficheiros de templating htt
         self.htt_templates: dict[str, TemplateFile] = {}
-        asyncio.gather(
+        asyncio.run(
             self.resolve_htt_templates()
         )
 
@@ -134,7 +135,7 @@ class TemplatingFiles(FileHandler):
             # só lê o ficheiro se não for um file de config e não uma pasta
             if '.httconfig' not in chave and dir_entry.is_file():
                 # Async set new htt template in, self.htt_templates
-                asyncio.get_running_loop().create_task(
+                await asyncio.get_running_loop().create_task(
                     asyncio.to_thread(
                         self.htt_templates.setdefault,
                         chave,
@@ -149,6 +150,8 @@ class TemplatingFiles(FileHandler):
                     )
                 )
 
+##############################################################################
+
 
 class HTMLGeneratorTags:
     """
@@ -158,109 +161,75 @@ class HTMLGeneratorTags:
     def __init__(self) -> None:
         # Adiciona as funcs disponiveis para gerar tags de html
         # através dos atributuos registados na class
-        self.funcs: dict[str, Callable] = dict(
-            (
-                func_name[:-4],
-                self.__getattribute__(func_name)
-            )
-            for func_name in self.__dir__()
-            if '_tag' in func_name
-        )
+        self.valid_tags: list[str] = [
+            'h1', 'h2', 'h3',
+            'h4', 'h5', 'p',
+            'span', 'hr', 'a'
+        ]
 
     @staticmethod
-    def tag_builder(h_tag: str, conteudo: str, /, tag_id: str = '') -> str:
+    def tag_builder(
+        h_tag: str,
+        conteudo: str,
+        /,
+        other_options: dict[str, str],
+        tag_id: str = ''
+    ) -> str:
         """
         Builds html h<n> tags
         """
-        return f'<{h_tag} id="{tag_id.replace(" ","-")}">{conteudo}</{h_tag}>'
 
-    def h1_tag(self, conteudo: str, /, tag_id: str = '') -> str:
-        """
-        Args:
-            conteudo (str): [description]
-            id (str, optional): [description]. Defaults to ''.
+        hmtl_tag_options: list[tuple[str, str]] = []
+        if other_options is not None:
+            for key, val in other_options.items():
+                if key not in ['tag', 'conteudo']:
+                    hmtl_tag_options.append((key, val))
 
-        Returns:
-            str: [description]
-        """
-        return self.tag_builder('h1', conteudo, tag_id=tag_id)
+        print(f'{hmtl_tag_options=}')
 
-    def h2_tag(self, conteudo: str, /, tag_id: str = '') -> str:
-        """
-        Args:
-            conteudo (str): [description]
-            id (str, optional): [description]. Defaults to ''.
+        for opt, vals in hmtl_tag_options:
+            print(f'->>{opt}={vals}')
 
-        Returns:
-            str: [description]
-        """
-        return self.tag_builder('h2', conteudo, tag_id=tag_id)
+        use_html_options: str = str(
+            ' ,' + f'{opt}="{vals}"'
+            for opt, vals in hmtl_tag_options
+        ) if hmtl_tag_options else ''
 
-    def h3_tag(self, conteudo: str, /, tag_id: str = '') -> str:
-        """
-        Args:
-            conteudo (str): [description]
-            id (str, optional): [description]. Defaults to ''.
+        conteudo_not_none: str = conteudo if conteudo is not None else ''
 
-        Returns:
-            str: [description]
-        """
-        return self.tag_builder('h3', conteudo, tag_id=tag_id)
+        return f'<{h_tag} id="{tag_id.replace(" ","-")}"{use_html_options}>{conteudo_not_none}</{h_tag}>'
 
-    def h4_tag(self, conteudo: str, /, tag_id: str = '') -> str:
+    def html_tag_resolve(
+        self,
+        /, other_options: dict[str, str],
+        tag: str = '',
+        tag_id: str = ''
+    ) -> str:
         """
-        Args:
-            conteudo (str): [description]
-            id (str, optional): [description]. Defaults to ''.
+        Resolve as tags fornecidas pelo programa, para html válido
+        """
+        if tag not in self.valid_tags:
+            erro_exit(
+                menssagen=f'A tag fornecida não é válida <{tag}>',
+                time_stamp=True,
+                tipo_erro='BadTagGiven'
+            )
+            return ''
 
-        Returns:
-            str: [description]
-        """
-        return self.tag_builder('h4', conteudo, tag_id=tag_id)
+        if other_options.get('conteudo') is None:
+            return self.tag_builder(
+                tag,
+                '',
+                tag_id=tag_id,
+                other_options=other_options
+            )
 
-    def h5_tag(self, conteudo: str, /, tag_id: str = '') -> str:
-        """
-        Args:
-            conteudo (str): [description]
-            id (str, optional): [description]. Defaults to ''.
-
-        Returns:
-            str: [description]
-        """
-        return self.tag_builder('h5', conteudo, tag_id=tag_id)
-
-    def span_tag(self, conteudo: str, /, tag_id: str = '') -> str:
-        """
-        Args:
-            conteudo (str): [description]
-            id (str, optional): [description]. Defaults to ''.
-
-        Returns:
-            str: [description]
-        """
-        return self.tag_builder('span', conteudo, tag_id=tag_id)
-
-    def p_tag(self, conteudo: str, /, tag_id: str = '') -> str:
-        """
-        Args:
-            conteudo (str): [description]
-            id (str, optional): [description]. Defaults to ''.
-
-        Returns:
-            str: [description]
-        """
-        return self.tag_builder('p', conteudo, tag_id=tag_id)
-
-    def hr_tag(self, _conteudo: str, /, tag_id: str = '') -> str:
-        """
-        Args:
-            conteudo (str): [description]
-            id (str, optional): [description]. Defaults to ''.
-
-        Returns:
-            str: [description]
-        """
-        return self.tag_builder('hr', '', tag_id=tag_id)
+        return self.tag_builder(
+            tag,
+            other_options['conteudo'],
+            tag_id=tag_id,
+            other_options=other_options
+        )
 
 
 class HTMLGenerator(HTMLGeneratorTags):
@@ -401,16 +370,19 @@ class HTMLGenerator(HTMLGeneratorTags):
         for section_name, section in template.items():
             # Adiciona ao novo conteudo para o ficheiro html
             try:
+                print(f'{section=}')
                 novo_conteudo_ficheiro.append(
                     # Chama as funções adequadas para as tags dadas
-                    self.funcs[section.get('tag')](
-                        section.get('conteudo'),
-                        tag_id=section_name
+                    # cicle
+                    self.html_tag_resolve(
+                        other_options=section,
+                        tag=section['tag'],
+                        tag_id=section_name,
                     )
                 )
-            except KeyError:
+            except KeyError as err:
                 erro_exit(
-                    menssagen=f'Valor <{section.get("tag")}> não está implementado para tags',
+                    menssagen=f'O valor <{err}>, não foi fornecido',
                     tipo_erro='FuncNotImplemented',
                     time_stamp=True
                 )
@@ -475,8 +447,4 @@ class HTMLGenerator(HTMLGeneratorTags):
             )
 
         # Add css style
-        asyncio.get_running_loop().create_task(
-            asyncio.to_thread(
-                self.insert_css_style
-            )
-        )
+        self.insert_css_style()
