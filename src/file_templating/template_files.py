@@ -116,7 +116,7 @@ class TemplatingFiles(FileHandler):
 
         # Leitura e atribuição dos ficheiros de templating htt
         self.htt_templates: dict[str, TemplateFile] = {}
-        asyncio.gather(
+        asyncio.run(
             self.resolve_htt_templates()
         )
 
