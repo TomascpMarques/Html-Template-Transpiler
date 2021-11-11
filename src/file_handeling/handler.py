@@ -308,7 +308,8 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
             word = word.replace(char, '')
         lista_temp_valores_conf.append(word)
 
-       # Formata os valores de acordo com a sua estrutura em python
+    # Formata os valores de acordo com a sua estrutura em python
+
     def formatar_valor(valor: str) -> str | list[str] | int | float | dict[str, str]:
         """
         De acordo com a estrutura do valor,
