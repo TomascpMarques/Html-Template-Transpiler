@@ -6,8 +6,7 @@
 import asyncio
 import os
 from dataclasses import dataclass
-from types import FunctionType
-from typing import Any, Dict
+from typing import Any
 
 # Program Modules
 from cli.erros import erro_exit
@@ -86,10 +85,10 @@ class TemplateFile():
         """
         Verifica se as keys fornecidas pelo template contêm a informação base necessária
         """
-        valid_keys: list[str] = ['tag', 'conteudo']
+        valid_keys: list[str] = ['tag']
         for section in self.keys():
             section_keys = self.get(section).keys()
-            if not set(section_keys).issubset(set(valid_keys)):
+            if not set(valid_keys).issubset(set(section_keys)):
                 error_mss = \
                     f'A secção <{section}>, contêm valores inválidos.\
                     \nEsperados: <{valid_keys}>\nDados:     <{list(section_keys)}>'
@@ -179,25 +178,23 @@ class HTMLGeneratorTags:
         Builds html h<n> tags
         """
 
-        hmtl_tag_options: list[tuple[str, str]] = []
+        html_tag_options: list[tuple[str, str]] = []
         if other_options is not None:
             for key, val in other_options.items():
                 if key not in ['tag', 'conteudo']:
-                    hmtl_tag_options.append((key, val))
+                    html_tag_options.append((key, val))
 
-        print(f'{hmtl_tag_options=}')
+        print(f'{html_tag_options=}')
 
-        for opt, vals in hmtl_tag_options:
-            print(f'->>{opt}={vals}')
-
-        use_html_options: str = str(
-            ' ,' + f'{opt}="{vals}"'
-            for opt, vals in hmtl_tag_options
-        ) if hmtl_tag_options else ''
+        use_html_options: str = ''
+        if html_tag_options is not None:
+            for opt, vals in html_tag_options:
+                use_html_options += (f'{opt}="{vals}" ')
 
         conteudo_not_none: str = conteudo if conteudo is not None else ''
+        id_tag: str = tag_id.replace(" ", "-")
 
-        return f'<{h_tag} id="{tag_id.replace(" ","-")}"{use_html_options}>{conteudo_not_none}</{h_tag}>'
+        return f'<{h_tag} id="{id_tag}"{use_html_options}>{conteudo_not_none}</{h_tag}>'
 
     def html_tag_resolve(
         self,
@@ -370,7 +367,6 @@ class HTMLGenerator(HTMLGeneratorTags):
         for section_name, section in template.items():
             # Adiciona ao novo conteudo para o ficheiro html
             try:
-                print(f'{section=}')
                 novo_conteudo_ficheiro.append(
                     # Chama as funções adequadas para as tags dadas
                     # cicle
@@ -383,7 +379,7 @@ class HTMLGenerator(HTMLGeneratorTags):
             except KeyError as err:
                 erro_exit(
                     menssagen=f'O valor <{err}>, não foi fornecido',
-                    tipo_erro='FuncNotImplemented',
+                    tipo_erro='NotEnoughVals',
                     time_stamp=True
                 )
 
