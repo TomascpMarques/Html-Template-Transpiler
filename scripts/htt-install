@@ -8,8 +8,8 @@ cd .htt
 # Get repository from url
 git clone https://github.com/TomascpMarques/Html-Template-Transpiler.git
 
-# Move to project folder
-cd 'Html-Template-Transpiler'
+# Move to project folder/scripts
+cd 'Html-Template-Transpiler/scripts'
 
 # Give execution permition
 chmod +x htt
