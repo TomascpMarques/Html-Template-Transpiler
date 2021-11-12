@@ -41,6 +41,10 @@ main {
   flex-wrap: nowrap;
 }
 
+span:hover {
+  cursor: pointer;
+}
+
 span {
   color: #2885db;
   padding: 0.7rem;
@@ -193,4 +197,34 @@ p::selection {
   font-weight: bolder;
   color: white;
   background-color: blueviolet;
+}
+
+a::before {
+  content: "[";
+  color: blueviolet;
+  font-weight: bolder;
+}
+
+a::after {
+  content: "]";
+  color: blueviolet;
+  font-weight: bolder;
+}
+
+a {
+  letter-spacing: 1.4px;
+  color: blueviolet;
+  text-decoration: none;
+  padding: 0.4rem;
+  border-radius: 3px;
+  border: none;
+  transition: 0.3s all ease-in-out;
+}
+
+a:hover {
+  font-style: normal;
+  cursor: pointer;
+  background-color: blueviolet;
+  color: white;
+  transform: skew(-15deg, 0);
 }
