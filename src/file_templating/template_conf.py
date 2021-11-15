@@ -49,7 +49,7 @@ class Configs():
         """
         return list(
             filter(
-                lambda x: not('__' in x),
+                lambda x: '__' not in x,
                 self.__dict__
             )
         )
