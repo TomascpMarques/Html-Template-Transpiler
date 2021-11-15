@@ -127,22 +127,28 @@ class TemplatingFiles(FileHandler):
             htt_templates=self.htt_templates,
             file_handeling=self,
             configs=configs,
-            custom_tags=self.resolve_custom_htt_tag_templates(configs=configs)
-        )
+            custom_tags=self.resolve_custom_htt_tag_templates(configs=configs))
 
-    def resolve_custom_htt_tag_templates(self, configs: TemplateConfig) -> dict[str, list[str]]:
+    def resolve_custom_htt_tag_templates(
+        self,
+        configs: TemplateConfig
+    ) -> dict[str, list[str]] | None:
         """
         Resolve os templates para as tags htt custom
         """
-        self.conteudo_custom: dict[str, os.DirEntry] = {}
-
         custom_tags_path: str | None = configs.get_config_valor("tags_custom")
+        if custom_tags_path is None:
+            return custom_tags_path
+
+        print(f'A usar tags custom (local): <{custom_tags_path}>\n' + '-'*20)
+
+        self.tags_custom: dict[str, os.DirEntry] = {}
         if custom_tags_path is not None:
             dir_entrys: dict[str, os.DirEntry] | None = self.path_dir_entrys(
                 path=custom_tags_path
             )
             if dir_entrys is not None:
-                self.conteudo_custom.update(
+                self.tags_custom.update(
                     dict(
                         (key, val) for key, val in dir_entrys.items()
                         if key[key.index('.'):] in HTT_FILE_EXTENSIONS
@@ -150,7 +156,7 @@ class TemplatingFiles(FileHandler):
                 )
 
         custom_tags: list[list[str]] = []
-        for _, ficheiro in self.conteudo_custom.items():
+        for _, ficheiro in self.tags_custom.items():
             custom_tags.append(
                 re.split(
                     r'\n\n\n',
@@ -158,7 +164,7 @@ class TemplatingFiles(FileHandler):
                 )
             )
 
-        return dict(zip(self.conteudo_custom.keys(), custom_tags))
+        return dict(zip(self.tags_custom.keys(), custom_tags))
 
     async def resolve_htt_templates(self) -> None:
         """
@@ -190,7 +196,7 @@ class HTMLGeneratorTags:
     Gera tags de HTML
     """
 
-    def __init__(self, adition_tags: dict[str, list[str]]) -> None:
+    def __init__(self, adition_tags: dict[str, list[str]] | None) -> None:
         # Adiciona as funcs disponiveis para gerar tags de html
         # através dos atributuos registados na class
         self.valid_tags: list[str] = [
@@ -200,7 +206,7 @@ class HTMLGeneratorTags:
         ]
 
         # Add custom tags
-        self.valid_tags_custom: dict[str, list[str]] = adition_tags
+        self.valid_tags_custom: dict[str, list[str]] | None = adition_tags
 
     @ staticmethod
     def tag_builder(
@@ -239,8 +245,18 @@ class HTMLGeneratorTags:
         """
         Resolve as tags fornecidas pelo programa, para html válido
         """
-        if tag in self.valid_tags_custom.keys():
-            return f'<div id="{tag_id}" style="{self.valid_tags_custom[tag][1]}">{self.valid_tags_custom[tag][0]}</div>'
+
+        if ".htt.custom" in tag and self.valid_tags_custom is None:
+            print(f"No custom tags to use for <{tag}>!")
+            erro_exit(menssagen='asdasd')
+            return ''
+
+        # check for custom tags=
+        if self.valid_tags_custom is not None and '.htt.custom' in tag:
+            if tag in self.valid_tags_custom.keys():
+                tag_style: str = self.valid_tags_custom[tag][1]
+                tag_content: str = self.valid_tags_custom[tag][0]
+                return f'<div id="{tag_id}" style="\n{tag_style}\n">\n\t{tag_content}\n\t</div>'
 
         if tag not in self.valid_tags:
             erro_exit(
@@ -276,7 +292,7 @@ class HTMLGenerator(HTMLGeneratorTags):
             htt_templates: dict[str, TemplateFile],
             file_handeling: FileHandler,
             configs: TemplateConfig,
-            custom_tags: dict[str, list[str]]
+            custom_tags: dict[str, list[str]] | None
     ):
         # Setup of html tag generator
         super().__init__(custom_tags)
@@ -379,7 +395,7 @@ class HTMLGenerator(HTMLGeneratorTags):
 
     def transpile_htt_to_html(self, template_file_name: str, template: TemplateFile):
         """
-        Asynchronously translate the htt file contents and write them to the html file
+        Translate the htt file contents and write them to the html file
         """
 
         novo_conteudo_ficheiro: list[str] = []
