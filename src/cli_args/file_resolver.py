@@ -18,7 +18,14 @@ def run_arg_files(path_ficheiros: str) -> None:
         path_ficheiros (str): Caminho até à pasta que fornece os ficheiros alvo
     """
     # Init o processo de templating com os ficheiros fornecidos
-    Templater(path=path_ficheiros)
+    project_templater = Templater(path=path_ficheiros)
+
+    print('Ficheiros (.htt) utilizados:')
+    for ficheiro in project_templater.templating.htt_templates:
+        print(f'|  -> {ficheiro}')
+
+    print('-'*20)
+    print('Feito!')
 
 
 files_mens_ajuda: str = \

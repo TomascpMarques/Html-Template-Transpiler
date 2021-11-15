@@ -5,12 +5,13 @@
 # Other imports
 import asyncio
 import os
+import re
 from dataclasses import dataclass
 from typing import Any
 
 # Program Modules
 from cli.erros import erro_exit
-from file_handeling.handler import FileHandler, parse_htt_file
+from file_handeling.handler import HTT_FILE_EXTENSIONS, FileHandler, parse_htt_file
 from file_templating.template_conf import TemplateConfig
 
 
@@ -20,7 +21,7 @@ class TemplateFile():
     Some Some
     """
 
-    def __init__(self, file_tags: dict[str, list[str]]):
+    def __init__(self, file_tags: dict[str, dict[str, Any]]):
         # adiciona os valores passados de file_tags
         # para atributuos da class
         for chave, valor in file_tags.items():
@@ -112,26 +113,59 @@ class TemplatingFiles(FileHandler):
 
         # Conteudo existente no path especifico
         self.conteudo_dir: dict[str, os.DirEntry] = \
-            super().conteudo_dir_entrys()
+            self.conteudo_dir_entrys()
+
+        self.htt_templates: dict[str, TemplateFile] = {}
 
         # Leitura e atribuição dos ficheiros de templating htt
-        self.htt_templates: dict[str, TemplateFile] = {}
         asyncio.run(
-            self.resolve_htt_templates()
+            self.resolve_htt_templates(),
         )
 
+        # Start html generation
         HTMLGenerator(
             htt_templates=self.htt_templates,
             file_handeling=self,
-            configs=configs
+            configs=configs,
+            custom_tags=self.resolve_custom_htt_tag_templates(configs=configs)
         )
+
+    def resolve_custom_htt_tag_templates(self, configs: TemplateConfig) -> dict[str, list[str]]:
+        """
+        Resolve os templates para as tags htt custom
+        """
+        self.conteudo_custom: dict[str, os.DirEntry] = {}
+
+        custom_tags_path: str | None = configs.get_config_valor("tags_custom")
+        if custom_tags_path is not None:
+            dir_entrys: dict[str, os.DirEntry] | None = self.path_dir_entrys(
+                path=custom_tags_path
+            )
+            if dir_entrys is not None:
+                self.conteudo_custom.update(
+                    dict(
+                        (key, val) for key, val in dir_entrys.items()
+                        if key[key.index('.'):] in HTT_FILE_EXTENSIONS
+                    )
+                )
+
+        custom_tags: list[list[str]] = []
+        for _, ficheiro in self.conteudo_custom.items():
+            custom_tags.append(
+                re.split(
+                    r'\n\n\n',
+                    self.resolver_conteudo_dir_entry(ficheiro)
+                )
+            )
+
+        return dict(zip(self.conteudo_custom.keys(), custom_tags))
 
     async def resolve_htt_templates(self) -> None:
         """
         Resolve os ficheiros htt e retira a informação inerente aos mesmos
         """
         for chave, dir_entry in self.conteudo_dir.items():
-            # só lê o ficheiro se não for um file de config e não uma pasta
+            # só lê o ficheiro se não for um file de config ou uma pasta
             if '.httconfig' not in chave and dir_entry.is_file():
                 # Async set new htt template in, self.htt_templates
                 await asyncio.get_running_loop().create_task(
@@ -145,7 +179,6 @@ class TemplatingFiles(FileHandler):
                                 self.resolver_conteudo_dir_entry(dir_entry)
                             )
                         ),
-
                     )
                 )
 
@@ -157,7 +190,7 @@ class HTMLGeneratorTags:
     Gera tags de HTML
     """
 
-    def __init__(self) -> None:
+    def __init__(self, adition_tags: dict[str, list[str]]) -> None:
         # Adiciona as funcs disponiveis para gerar tags de html
         # através dos atributuos registados na class
         self.valid_tags: list[str] = [
@@ -166,7 +199,10 @@ class HTMLGeneratorTags:
             'span', 'hr', 'a'
         ]
 
-    @staticmethod
+        # Add custom tags
+        self.valid_tags_custom: dict[str, list[str]] = adition_tags
+
+    @ staticmethod
     def tag_builder(
         h_tag: str,
         conteudo: str,
@@ -183,8 +219,6 @@ class HTMLGeneratorTags:
             for key, val in other_options.items():
                 if key not in ['tag', 'conteudo']:
                     html_tag_options.append((key, val))
-
-        print(f'{html_tag_options=}')
 
         use_html_options: str = ''
         if html_tag_options is not None:
@@ -205,6 +239,9 @@ class HTMLGeneratorTags:
         """
         Resolve as tags fornecidas pelo programa, para html válido
         """
+        if tag in self.valid_tags_custom.keys():
+            return f'<div id="{tag_id}" style="{self.valid_tags_custom[tag][1]}">{self.valid_tags_custom[tag][0]}</div>'
+
         if tag not in self.valid_tags:
             erro_exit(
                 menssagen=f'A tag fornecida não é válida <{tag}>',
@@ -238,10 +275,11 @@ class HTMLGenerator(HTMLGeneratorTags):
             self,
             htt_templates: dict[str, TemplateFile],
             file_handeling: FileHandler,
-            configs: TemplateConfig
+            configs: TemplateConfig,
+            custom_tags: dict[str, list[str]]
     ):
         # Setup of html tag generator
-        super().__init__()
+        super().__init__(custom_tags)
 
         # htt templates
         self.templates: dict[str, TemplateFile] = htt_templates
@@ -260,7 +298,7 @@ class HTMLGenerator(HTMLGeneratorTags):
             self.gen_html()
         )
 
-    @staticmethod
+    @ staticmethod
     def _setup_css_fontes(fontes_escolhidas: list[str]) -> str:
         fonts_css_import: str = "\t@import url('https://fonts.googleapis.com/css2?"
 

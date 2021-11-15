@@ -23,7 +23,7 @@ from typing import Any
 from cli.erros import erro_exit
 
 # Extensões utilizadas pelo sistema de templating
-HTT_FILE_EXTENSIONS: list[str] = ['.htt', '.httconfig']
+HTT_FILE_EXTENSIONS: list[str] = ['.htt', '.httconfig', '.htt.custom']
 
 
 class FileHandler:
@@ -49,7 +49,7 @@ class FileHandler:
                 entrada.is_file()
                 and entrada.name[entrada.name.index('.'):]
                 in HTT_FILE_EXTENSIONS
-            ) or entrada.is_dir()  # Permite aceitar pastas
+            )
         )
 
         # Verifica se a pasta alvo contêm o conteudo minímo necessário
@@ -107,7 +107,7 @@ class FileHandler:
         """
         return self.resolver_conteudo_ficheiro(dir_entry.path)
 
-    def path_get_dir_entry(self, path: str) -> os.DirEntry | None:
+    def path_get_dir_entrys(self, path: str) -> os.DirEntry | None:
         """
         Devolve a dir entry do ficheiro pedido
 
@@ -118,7 +118,23 @@ class FileHandler:
             return None
         return self._conteudo.get(path)
 
-    def get_current_dir_entrys(self) -> list[os.DirEntry]:
+    def path_dir_entrys(self, path: str) -> dict[str, os.DirEntry] | None:
+        """
+        Devolve as dir entrys do path pedido
+
+        Returns:
+            dict[str, os.DirEntry] | None: Dir entrys existentes ou None
+        """
+        return dict(
+            (dir_entry.name, dir_entry) for dir_entry in os.scandir(
+                os.path.join(
+                    self.caminho,
+                    os.path.abspath(path)
+                )
+            )
+        )
+
+    def get_current_dir_entry(self) -> list[os.DirEntry]:
         """
         Devolve as dir entrys do path atual
 
@@ -126,15 +142,6 @@ class FileHandler:
             list[os.DirEntry]: Dir entrys no path
         """
         return list(entry for _, entry in self._conteudo.items() if entry.is_file())
-
-    def path_get_dir_entrys(self) -> list[os.DirEntry]:
-        """
-        Devolve as dir entrys dos ficheiro pedidos
-
-        Returns:
-            list[os.DirEntry]: Lista das dir entries dso ficheiros pedidos
-        """
-        return self.get_current_dir_entrys()
 
     def dir_entrys_por_extensao(self, extensao: str) -> list[os.DirEntry]:
         """
@@ -147,7 +154,7 @@ class FileHandler:
         return list(
             filter(
                 lambda x: x.name[x.name.index('.'):] == extensao,
-                self.get_current_dir_entrys()
+                self.get_current_dir_entry()
             )
         )
 
@@ -279,12 +286,15 @@ class FileHandler:
 
 def parse_htt_file(conteudo: str) -> dict[str, Any]:
     """
-        Retira os valores de config existentes no ficheiro ".httconfig"
-        do projeto e adiciona esses mesmos valores à class
+    Retira os valores de config existentes no ficheiro dado
+    e retorna os valores extraidos
 
-        Args:
-            conteudo_ficheiro (str): Conteudo do ficheiro de config
-        """
+    Returns:
+        dict[str, Any]: Um dicionário com as tags/valores dentro do ficheiro
+
+    Args:
+        conteudo_ficheiro (str): Conteudo do ficheiro de config
+    """
 
     # Divide o conteudo do ficheiro através de new-lines vazias
     # Ex:
@@ -300,20 +310,20 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
             conteudo
     )
 
+    unwantted_chars = ['    ', '\t', '\n', '\t ']
     # Esta lista vai  guardar os valores em que
     # os caracteres desnecessários são retirados
     lista_temp_valores_conf: list[str] = []
     for word in conteudo_ficheiro:
-        for char in ['    ', '\t', '\n', '\t ']:
+        for char in unwantted_chars:
             word = word.replace(char, '')
         lista_temp_valores_conf.append(word)
 
     # Formata os valores de acordo com a sua estrutura em python
-
     def formatar_valor(valor: str) -> str | list[str] | int | float | dict[str, str]:
         """
-        De acordo com a estrutura do valor,
-        devolve uma estrutura equivalente em python
+        De acordo com o formato do valor,
+        devolve um objeto equivalente em python
 
         Args:
             valor (str): Valor a formatar
@@ -354,6 +364,7 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
 
        # Cria o dicionário com os valores e chaves corretos
        # de config, para adicionar à struct
+
     configs_valores_dict: dict[str, object] = dict(
         (
             line[0: line.index(':')-1],   # key

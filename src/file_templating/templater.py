@@ -7,7 +7,7 @@ from file_handeling.handler import FileHandler
 from file_templating.template_conf import TemplateConfig
 from file_templating.template_files import TemplatingFiles
 
-TEMPLATE_CONFIG_EXTENSAO: str = '.httconfig'
+NOME_TEMPLATE_CONFIG: str = '.httconfig'
 
 
 class Templater(FileHandler):
@@ -22,10 +22,13 @@ class Templater(FileHandler):
         # Setup do FileHandler, com o caminho especifico
         super().__init__(path)
 
+        # Templating Configs
         self.configs: TemplateConfig = TemplateConfig(
-            super().resolver_conteudo_ficheiro(TEMPLATE_CONFIG_EXTENSAO)
+            # super() method
+            self.resolver_conteudo_ficheiro(NOME_TEMPLATE_CONFIG)
         )
 
+        # Init Project templating
         self.templating: TemplatingFiles = TemplatingFiles(
             path=path,
             configs=self.configs

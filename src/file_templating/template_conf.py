@@ -25,6 +25,21 @@ class Configs():
         for chave, valor in parse_htt_file(conteudo).items():
             self.__setattr__(chave, valor)
 
+    def get_config_valor(self, config_key: str) -> Any | None:
+        """
+            Retorna a config pedida pela key
+
+            Args:
+                config_key (str): String for the config value to query
+
+            Returns:
+                Any: O valor da config pedida
+        """
+        try:
+            return self.__getattribute__(config_key)
+        except AttributeError:
+            return None
+
     def config_opcoes(self) -> list[str]:
         """
         Retorna os valores de config existentes na class
@@ -34,7 +49,7 @@ class Configs():
         """
         return list(
             filter(
-                lambda x: not('__' in x or '_' in x),
+                lambda x: not('__' in x),
                 self.__dict__
             )
         )
