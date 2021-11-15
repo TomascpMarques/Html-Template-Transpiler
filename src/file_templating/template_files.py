@@ -164,7 +164,6 @@ class TemplatingFiles(FileHandler):
         """
         Resolve os ficheiros htt e retira a informação inerente aos mesmos
         """
-        print('BBBBBBBBB')
         for chave, dir_entry in self.conteudo_dir.items():
             # só lê o ficheiro se não for um file de config ou uma pasta
             if '.httconfig' not in chave and dir_entry.is_file():
@@ -199,8 +198,6 @@ class HTMLGeneratorTags:
             'h4', 'h5', 'p',
             'span', 'hr', 'a'
         ]
-
-        print(f'AAAAAAAAAAA {adition_tags=}')
 
         # Add custom tags
         self.valid_tags_custom: dict[str, list[str]] = adition_tags
@@ -242,7 +239,6 @@ class HTMLGeneratorTags:
         """
         Resolve as tags fornecidas pelo programa, para html válido
         """
-        print(f'GGGGGGGGG {tag=}')
         if tag in self.valid_tags_custom.keys():
             return f'<div id="{tag_id}" style="{self.valid_tags_custom[tag][1]}">{self.valid_tags_custom[tag][0]}</div>'
 
@@ -284,8 +280,6 @@ class HTMLGenerator(HTMLGeneratorTags):
     ):
         # Setup of html tag generator
         super().__init__(custom_tags)
-
-        print(f'{custom_tags=}')
 
         # htt templates
         self.templates: dict[str, TemplateFile] = htt_templates
