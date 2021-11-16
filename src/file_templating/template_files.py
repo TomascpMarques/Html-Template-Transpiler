@@ -253,7 +253,7 @@ class HTMLGeneratorTags:
 
         # check for custom tags=
         if self.valid_tags_custom is not None and '.htt.custom' in tag:
-            if tag in self.valid_tags_custom.keys():
+            if tag in self.valid_tags_custom:
                 tag_style: str = self.valid_tags_custom[tag][1]
                 tag_content: str = self.valid_tags_custom[tag][0]
                 return f'<div id="{tag_id}" style="\n{tag_style}\n">\n\t{tag_content}\n\t</div>'
