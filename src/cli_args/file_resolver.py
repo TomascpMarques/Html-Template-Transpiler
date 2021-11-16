@@ -4,21 +4,33 @@ Desenvolvimento e resolving do argumento <files> (--files)
 
 # Other imports
 import re
+from typing import Any
 
 # Program Modules
 from cli.arg_setup import CliArgumento
-from file_templating.templater import Templater
+from file_templating.templater import HTT_CONFIG_FILE, Templater
 
 
-def run_arg_files(path_ficheiros: str) -> None:
+def run_arg_files(path_ficheiros: str, **kwargs: Any) -> None:
     """
     Resolve o argumento para lidar com os ficheiros dados
 
     Args:
         path_ficheiros (str): Caminho até à pasta que fornece os ficheiros alvo
     """
+    config_path: str = ''
+    if kwargs.get('htt-config') is not None:
+        config_path = kwargs['htt-config']
+    else:
+        config_path = HTT_CONFIG_FILE
+
     # Init o processo de templating com os ficheiros fornecidos
-    project_templater = Templater(path=path_ficheiros)
+    project_templater = Templater(
+        path=path_ficheiros,
+        config_file_path=(
+            config_path
+        )
+    )
 
     print('Ficheiros (.htt) utilizados:')
     for ficheiro in project_templater.templating.htt_templates:
