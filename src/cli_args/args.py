@@ -9,6 +9,8 @@ import re
 from cli.arg_setup import CliArgumento
 from cli.erros import erro_exit
 from cli_args.file_resolver import files_arg
+from cli_args.config_resolver import config_arg
+from cli_store.store import CLI_STORE
 
 
 def resolver_cli_args(arg: str, param: str) -> None:
@@ -20,7 +22,7 @@ def resolver_cli_args(arg: str, param: str) -> None:
         param (any): Parametro a fornecer ao argumento
     """
     # Corre um argumento (dos disponiveis) com o parametro fornecido
-    CLI_ARGS[arg].run(param)
+    CLI_ARGS[arg].run(param, **CLI_STORE)
 
 
 def run_arg_help(arg: str) -> None:
@@ -69,5 +71,6 @@ help_arg: CliArgumento = CliArgumento(
 
 CLI_ARGS: dict[str, CliArgumento] = {
     'files': files_arg,
+    'config': config_arg,
     'help': help_arg,
 }
