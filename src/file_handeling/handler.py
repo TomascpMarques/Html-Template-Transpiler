@@ -45,11 +45,9 @@ class FileHandler:
         # Procura por ficheiros e pastas que possam conter ficheiros válidos
         self._conteudo: dict[str, os.DirEntry] = dict(
             (entrada.name, entrada) for entrada in os.scandir(path)
-            if (
-                entrada.is_file()
-                and entrada.name[entrada.name.index('.'):]
-                in HTT_FILE_EXTENSIONS
-            )
+            if entrada.is_file()
+            and entrada.name[entrada.name.index('.'):]
+            in HTT_FILE_EXTENSIONS
         )
 
         # Verifica se a pasta alvo contêm o conteudo minímo necessário
@@ -89,11 +87,17 @@ class FileHandler:
         Returns:
             list[str]: Conteudos do ficheiro em linhas
         """
-        with open(
-            path, 'r',
-            encoding=sys.getfilesystemencoding()
-        ) as ficheiro:
-            return ficheiro.read()
+        try:
+            with open(
+                path, 'r',
+                encoding=sys.getfilesystemencoding()
+            ) as ficheiro:
+                return ficheiro.read()
+        except FileNotFoundError:
+            erro_exit(
+                menssagen=f'O caminho para o ficheiro <{path}> não é válido',
+            )
+            return ''
 
     def resolver_conteudo_dir_entry(self, dir_entry: os.DirEntry) -> str:
         """
@@ -118,14 +122,19 @@ class FileHandler:
             return None
         return self._conteudo.get(path)
 
-    def path_dir_entrys(self, path: str) -> dict[str, os.DirEntry] | None:
+    def path_dir_entrys(self, path: str = '') -> dict[str, os.DirEntry] | None:
         """
-        Devolve as dir entrys do path pedido
+        Devolve as dir entrys do path pedido, a partir do caminho
 
         Returns:
             dict[str, os.DirEntry] | None: Dir entrys existentes ou None
         """
+        # If default path use self.caminho else use caminho + path
         return dict(
+            (dir_entry.name, dir_entry) for dir_entry in os.scandir(
+                self.caminho
+            )
+        ) if path == '' else dict(
             (dir_entry.name, dir_entry) for dir_entry in os.scandir(
                 os.path.join(
                     self.caminho,
