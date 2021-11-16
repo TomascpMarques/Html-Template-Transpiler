@@ -3,11 +3,15 @@
     tais como tipo de letra, tema a usar e tipo de transpilação
 """
 
+import re
+import requests
+from cli.erros import erro_exit
+
 from file_handeling.handler import FileHandler
 from file_templating.template_conf import TemplateConfig
 from file_templating.template_files import TemplatingFiles
 
-NOME_TEMPLATE_CONFIG: str = '.httconfig'
+HTT_CONFIG_FILE = '.httconfig'
 
 
 class Templater(FileHandler):
@@ -18,15 +22,41 @@ class Templater(FileHandler):
         FileHandler ([type]): Objeto que gere ficheiros e pastas
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, config_file_path: str) -> None:
         # Setup do FileHandler, com o caminho especifico
         super().__init__(path)
 
-        # Templating Configs
-        self.configs: TemplateConfig = TemplateConfig(
-            # super() method
-            self.resolver_conteudo_ficheiro(NOME_TEMPLATE_CONFIG)
+        regex_pattern: re.Pattern = re.compile(
+            r'https:\/\/raw.githubusercontent\.com\/\S+\/\w+\.httconfig$'
         )
+
+        self.configs: TemplateConfig
+
+        # Templating Configs
+        if re.match(regex_pattern, config_file_path) is not None:
+            req: requests.Response = requests.get(config_file_path)
+
+            if req.status_code != 200:
+                erro_exit(
+                    menssagen=f'O link fornecido para configs. não é válido: «{config_file_path}»'
+                )
+
+            if req.text.__len__() <= 1:
+                erro_exit(
+                    menssagen='O ficheiro de configs está vazio'
+                )
+
+            # Set the configs
+            self.configs = TemplateConfig(
+                req.text
+            )
+        else:
+            self.configs = TemplateConfig(
+                # super()'s method
+                self.resolver_conteudo_ficheiro(
+                    config_file_path
+                )
+            )
 
         # Init Project templating
         self.templating: TemplatingFiles = TemplatingFiles(

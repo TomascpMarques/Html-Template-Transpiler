@@ -6,7 +6,7 @@ import sys
 import time
 
 
-def erro_exit(menssagen: str, tipo_erro: str = "Erro", time_stamp: bool = False) -> None:
+def erro_exit(menssagen: str, tipo_erro: str = "Erro", time_stamp: bool = True) -> None:
     """[summary]
 
     Args:

@@ -5,6 +5,7 @@ Modulo relativo à interação do user com o programa através do terminal
 # Other imports
 import re
 
+
 # Progrma Modules
 from cli.erros import erro_exit
 from cli.arg_setup import CliArgumento, validar_argumento
@@ -18,7 +19,11 @@ class Cli:
     com os pedidos do utilizador
     """
 
-    def __init__(self, args_recebidos: list[str], **kwargs: CliArgumento):
+    def __init__(
+            self,
+            args_recebidos: list[str],
+            **kwargs: CliArgumento
+    ):
         # Toma os argumentos disponiveis ao progrma
         self.argumentos_possiveis: dict[str, CliArgumento] = dict(
             (key, val) for (key, val) in kwargs.items()
