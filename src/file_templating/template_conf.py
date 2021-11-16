@@ -3,7 +3,7 @@ Configurações do templating
 """
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
 from file_handeling.handler import parse_htt_file
 
 
@@ -21,11 +21,14 @@ class Configs():
         self.estilo: str = ''
         # End Configs Esperadas
 
+        # O atributuo tags_custom, só é adicionado pelo conteudo do ficheiro
+        # não é adicionado por defeito.
+
         #  Adiciona os valores e atributuos corretos à class
         for chave, valor in parse_htt_file(conteudo).items():
             self.__setattr__(chave, valor)
 
-    def get_config_valor(self, config_key: str) -> Any | None:
+    def get_config_valor(self, config_key: str) -> Any | Literal[None]:
         """
             Retorna a config pedida pela key
 
@@ -47,6 +50,8 @@ class Configs():
         Returns:
             list[str]: Valores disponiveis
         """
+        # Todos os atributuos que se quer usar como configs
+        # são os que não contêm «_»
         return list(
             filter(
                 lambda x: '__' not in x,
@@ -77,7 +82,7 @@ class TemplateConfig(Configs):
         # Init do objeto Config para uso
         super().__init__(conf_file)
 
-        self.configuracao_template()
+        self.template_configs = self.configuracao_template()
 
     def configs(self) -> dict[str, Any]:
         """
