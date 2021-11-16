@@ -17,9 +17,7 @@ class CliArgumento():
     Define a estrutura de um possivél argumento aceitável pela aplicação/cli
     """
     # Resolve o argumento chamado com o valor fornecido
-    run: Callable = field(
-        default=lambda x: x
-    )
+    run: Callable = field()
     # Irá validar o valor dado ao argumento na cli
     func_validacao: Callable = field(
         default=lambda x: x
