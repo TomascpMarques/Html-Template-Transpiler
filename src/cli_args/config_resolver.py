@@ -6,7 +6,7 @@ import re
 from typing import Any
 
 from cli.arg_setup import CliArgumento
-from cli_store.store import CLI_STORE, cli_store_set
+from cli_store.store import cli_store_set
 
 
 def run_arg_config(path_config: str, **__kwargs: Any) -> None:
@@ -26,8 +26,8 @@ def run_arg_config(path_config: str, **__kwargs: Any) -> None:
 
 
 config_mens_ajuda: str = \
-    '* Parametro: <config> | Exemplo: --config ./alguma/pasta/.httconfig <ou> https://some.foo.bar/.httconfig\n\
-O argumento têm que apontar para uma pasta válida'
+    '* Parametro: <config> | Exemplo: --config ./alguma/pasta/.httconfig <ou>' + \
+    'https: // some.foo.bar/.httconfig\nO argumento têm que apontar para uma pasta válida'
 
 config_arg: CliArgumento = CliArgumento(
     chave='config',
@@ -36,6 +36,7 @@ config_arg: CliArgumento = CliArgumento(
     erro_validacao='Não foi possivél validar o valor para o argumento <config>',
     mensagem_ajuda=config_mens_ajuda,
     re_validacao_tipo_valor=re.compile(
-        r'(((^\.\.\/|^\.\/|^\.)|(^\.\/|^\.|^~\/|^\/)(\w+\/)+)+\.httconfig)|https:\/\/raw.githubusercontent\.com\/\S+\/\w+\.httconfig$'
+        r'(((^\.\.\/|^\.\/|^\.)|(^\.\/|^\.|^~\/|^\/)(\w+\/)+)+\.httconfig)' +
+        r'|https:\/\/raw.githubusercontent\.com\/\S+\/\w+\.httconfig$'
     ),
 )
