@@ -9,9 +9,12 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+import requests
 # Program Modules
 from cli.erros import erro_exit
-from file_handeling.handler import HTT_FILE_EXTENSIONS, FileHandler, parse_htt_file
+from file_handeling.handler import (HTT_FILE_EXTENSIONS, FileHandler,
+                                    parse_htt_file)
+
 from file_templating.template_conf import TemplateConfig
 
 
@@ -127,7 +130,10 @@ class TemplatingFiles(FileHandler):
             htt_templates=self.htt_templates,
             file_handeling=self,
             configs=configs,
-            custom_tags=self.resolve_custom_htt_tag_templates(configs=configs))
+            custom_tags=self.resolve_custom_htt_tag_templates(
+                configs=configs
+            )
+        )
 
     def resolve_custom_htt_tag_templates(
         self,
@@ -140,7 +146,114 @@ class TemplatingFiles(FileHandler):
         if custom_tags_path is None:
             return custom_tags_path
 
-        print(f'A usar tags custom (local): <{custom_tags_path}>\n' + '-'*20)
+        # Import custom tags from the web
+        # if tags_custom attribute is set to be a link
+        link_regex_pattern: re.Pattern = re.compile(
+            r'(([A-z -_]+\/)+)manifesto\.htt'
+        )
+
+        if re.match(link_regex_pattern, custom_tags_path) is not None:
+            # The htt manifesto is a file in a github project directory,
+            # that stores the base folders link for the custom tags folder,
+            # and a list of the tag forlders to download from the custom tags folder
+            htt_manifesto_request: requests.Response = \
+                requests.get(
+                    url='https://raw.githubusercontent.com/' + custom_tags_path
+                )
+
+            if (
+                htt_manifesto_request.status_code != 200
+                or htt_manifesto_request.text.__len__() <= 1
+            ):
+                erro_exit(
+                    menssagen='O ficheiro de manifesto para as tags não foi alcançavel',
+                    tipo_erro='ManifestoNotOK'
+                )
+                return None
+
+            parssed_manifesto: dict[str, Any] = parse_htt_file(
+                htt_manifesto_request.text
+            )
+
+            def validate_htt_manifesto(manifesto: dict[str, Any]) -> str:
+                """
+                    Validates the base keys and values of the manifesto file
+                    Errors out of the program if the file is invalid.
+
+                    Returns: The new value of the custom tag path
+                """
+                base_valid_keys: tuple[str, str] = ('base folder', 'tags')
+                if not set(manifesto).issubset(set(base_valid_keys)):
+                    error_mss: str = \
+                        'As chaves defenidas no manifesto não contêm a info. necessária\n' + \
+                        f'Dadas: {set(manifesto)}\nEsperadas: {base_valid_keys}\n'
+                    erro_exit(
+                        tipo_erro='BadManifestoKeys',
+                        menssagen=error_mss
+                    )
+
+                base_folder_regex: re.Pattern = \
+                    re.compile(
+                        r'(([A-z -_]+\/)+)'
+                    )
+
+                base_folder_manifest_val: str = manifesto[base_valid_keys[0]]
+                custom_tags_manifest_val: list[str] = manifesto[base_valid_keys[1]]
+
+                if re.match(base_folder_regex, base_folder_manifest_val) is None:
+                    erro_exit(
+                        menssagen='O link fornecido para o base folder das tags não é válido',
+                        tipo_erro='BadBaseFolderTags'
+                    )
+
+                base_tags_folder: str = base_folder_manifest_val
+
+                # Create the folder for storing the tags that will be requested from github
+                if base_tags_folder not in self.folder_names_in_path():
+                    self.criar_pasta(
+                        base_tags_folder
+                    )
+
+                if custom_tags_manifest_val.__len__() < 1:
+                    erro_exit(
+                        menssagen='O valor fonecido para as tags não é válido',
+                        tipo_erro='TagsCustomFileNameInvalid'
+                    )
+
+                custom_tags_responses: list[requests.Response] = list(
+                    requests.get(
+                        'https://raw.githubusercontent.com/' + base_tags_folder + custom_tag
+                    ) for custom_tag in custom_tags_manifest_val
+                )
+
+                for index, request in enumerate(custom_tags_responses):
+                    if request.status_code != 200:
+                        error_mss: str = \
+                            'Ocorreu um erro ao pedir o ficheiro <' + \
+                            custom_tags_manifest_val[index] + '>'
+
+                        erro_exit(
+                            menssagen=str(error_mss),
+                            tipo_erro='ErroRequestingFile'
+                        )
+                    elif request.text != '':
+                        self.escrever_conteudo_ficheiro(
+                            ficheiro=(
+                                base_tags_folder +
+                                custom_tags_manifest_val[index]
+                            ),
+                            conteudo=request.text,
+                            modo='w'
+                        )
+
+                # returns new value for custom_tags_path
+                return base_tags_folder
+
+            # Run the custom tag link validation
+            custom_tags_path = validate_htt_manifesto(parssed_manifesto)
+
+        print(
+            f'A usar tags custom (local):\n -> <{custom_tags_path}>\n' + '-'*20)
 
         self.tags_custom: dict[str, os.DirEntry] = {}
         if custom_tags_path is not None:
