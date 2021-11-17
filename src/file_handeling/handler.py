@@ -17,7 +17,7 @@ Lida com ficheiros e as suas pastas
 import os
 import sys
 import re
-from typing import Any
+from typing import Any, Generator
 
 # Program Modules
 from cli.erros import erro_exit
@@ -57,6 +57,16 @@ class FileHandler:
                 time_stamp=True,
                 tipo_erro='NotEnoughFiles'
             )
+
+    def folder_names_in_path(self, __path: str = '') -> Generator[str, None, None]:
+        """
+        Yields all the folder names in the path
+        """
+        if __path == '':
+            __path = self.caminho
+        for folder in os.scandir(__path):
+            if folder.is_dir():
+                yield folder.name
 
     def conteudo_dir_entrys(self) -> dict[str, os.DirEntry]:
         """
@@ -230,7 +240,17 @@ class FileHandler:
         Cria uma pasta para o output do programa
         """
         try:
-            os.mkdir(path)
+            splited_path: list[str] = list(
+                filter(
+                    lambda x: x != '',
+                    path.split(os.path.sep)
+                )
+            )
+            for index, _ in enumerate(splited_path):
+                os.mkdir(
+                    f"{os.path.sep}"
+                    .join(splited_path[:index+1])
+                )
         except FileExistsError:
             pass
 
@@ -257,9 +277,10 @@ class FileHandler:
         #
         # Se for do tipo os.DirEntry, executa as operações de verificação
         # e uso do mesmo com os dados contido na estrutura
-        if isinstance(ficheiro, os.DirEntry):
-            pass
-        elif isinstance(ficheiro, str):
+        if (
+            not isinstance(ficheiro, os.DirEntry)
+            or isinstance(ficheiro, str)
+        ):
             pass
         else:
             erro_exit(
@@ -310,13 +331,12 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
     #     fontes :
     #         some > foo,
     #         emos > bar
-    #     <empty new line>\t
+    #     \n<empty new line>
     #     some :
     #         some
-    conteudo_ficheiro: list[str] = \
-        re.split(
-            re.compile(r"^\n", re.MULTILINE),
-            conteudo
+    conteudo_ficheiro: list[str] = re.split(
+        re.compile(r"^\n", re.MULTILINE),
+        conteudo
     )
 
     unwantted_chars = ['    ', '\t', '\n', '\t ']
@@ -360,12 +380,17 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
                     time_stamp=True,
                     tipo_erro='BadTagGiven'
                 )
-        if ',' in valor:
+        if re.match(r'\S+\,', valor) is not None:
             # lista de strings
-            return valor.split(',')
+            return list(
+                filter(
+                    lambda x: x != '',
+                    valor.split(',')
+                )
+            )
         if valor.isnumeric():
             return int(valor)
-        if re.match(r'\d+', valor):
+        if re.match(r'\d+', valor) is not None:
             return float(valor)
 
         # default catch

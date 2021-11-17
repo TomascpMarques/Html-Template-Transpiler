@@ -18,7 +18,7 @@ def run_arg_config(path_config: str, **__kwargs: Any) -> None:
         path_config (str): Path ou link para o ficheiro
         de config para o projeto
     """
-    print(f'A utlizar o file de config: «{path_config}»')
+    print(f'A utilizar o file de config:\n -> «{path_config}»')
     cli_store_set(
         'htt-config',
         path_config
