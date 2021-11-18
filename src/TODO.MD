@@ -2,7 +2,7 @@
 
 ## Gotta Make:
 
-- Refactor the custom htt tags feature, make it more like vue templates
+- **DOING** Refactor the custom htt tags feature, make it more like vue templates
 
 ## Finished:
 
