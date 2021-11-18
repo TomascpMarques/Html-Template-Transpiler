@@ -13,6 +13,7 @@ import requests
 
 # Program Modules
 from cli.erros import erro_exit
+from cli_store.store import cli_store_update, CLI_STORE
 from file_handeling.handler import (
     HTT_FILE_EXTENSIONS,
     FileHandler,
@@ -158,7 +159,7 @@ class TemplatingFiles(FileHandler):
 
         base_folder_regex: re.Pattern = \
             re.compile(
-                r'(([A-z -_]+\/)+)'
+                r'(([A-z-_]+\/)+)'
             )
 
         base_folder_manifest_val: str = manifesto[base_valid_keys[0]]
@@ -209,17 +210,6 @@ class TemplatingFiles(FileHandler):
                     modo='w',
                     conteudo=request.text,
                 )
-                print(f'{request.text}')
-                temp = list(
-                    filter(
-                        lambda x: x != '',
-                        re.split(
-                            r'<css>|<html>\n{1,}<css>|<html>',
-                            request.text
-                        )
-                    )
-                )
-                print(f'{temp=}')
 
         # returns new value for custom_tags_path
         return base_tags_folder
@@ -238,7 +228,7 @@ class TemplatingFiles(FileHandler):
         # Import custom tags from the web
         # if tags_custom attribute is set to be a link
         link_regex_pattern: re.Pattern = re.compile(
-            r'(([A-z -_]+\/)+)manifesto\.htt'
+            r'(([A-z-_]+\/)+)manifesto\.htt'
         )
 
         if re.match(link_regex_pattern, custom_tags_path) is not None:
@@ -298,7 +288,6 @@ class TemplatingFiles(FileHandler):
                 )
             )
 
-        print(f'{custom_tags=}')
         return dict(zip(self.tags_custom.keys(), custom_tags))
 
     async def resolve_htt_templates(self) -> None:
@@ -386,20 +375,42 @@ class HTMLGeneratorTags:
 
         if ".htt.custom" in tag and self.valid_tags_custom is None:
             print(f"No custom tags to use for <{tag}>!")
-            erro_exit(menssagen='asdasd')
             return ''
 
         # check for custom tags=
         if self.valid_tags_custom is not None and '.htt.custom' in tag:
             if tag in self.valid_tags_custom:
-                tag_style: str = self.valid_tags_custom[tag][1]
                 tag_content: str = self.valid_tags_custom[tag][0]
-                return f'<div id="{tag_id}" style="\n{tag_style}\n">\n\t{tag_content}\n\t</div>'
+
+                # css style formatting for regex validation
+                tag_style: str = ''.join(
+                    map(
+                        lambda x: '\\n' if x == r'\n' else x,
+                        self.valid_tags_custom[tag][1]
+                    )
+                )
+
+                pattern_one: re.Pattern = re.compile(
+                    r'\.[A-z-_]+\s{0,}\{.+\}', re.MULTILINE
+                )
+
+                # only add css classes
+                if re.findall(pattern_one, tag_style) is not None:
+                    cli_store_update(
+                        'custom-tags-css',
+                        ''.join(
+                            map(
+                                lambda x: r'\n' if x == '\\n' else x,
+                                tag_style
+                            )
+                        )
+                    )
+
+                return f'<div id="{tag_id}">\n{tag_content}\n</div>'
 
         if tag not in self.valid_tags:
             erro_exit(
                 menssagen=f'A tag fornecida não é válida <{tag}>',
-                time_stamp=True,
                 tipo_erro='BadTagGiven'
             )
             return ''
@@ -555,6 +566,8 @@ class HTMLGenerator(HTMLGeneratorTags):
 
         novo_conteudo_ficheiro.append('<body>\n<main>')
 
+        previous_content: str | None = CLI_STORE.get('custom-tags-css')
+
         # Itera sobre as secções no template
         for section_name, section in template.items():
             # Adiciona ao novo conteudo para o ficheiro html
@@ -568,6 +581,13 @@ class HTMLGenerator(HTMLGeneratorTags):
                         tag_id=section_name,
                     )
                 )
+                current_custom_tags: str | None = \
+                    CLI_STORE.get(
+                        'custom-tags-css'
+                    )
+                if current_custom_tags is not None and current_custom_tags != previous_content:
+                    self.update_css_style(current_custom_tags)
+
             except KeyError as err:
                 erro_exit(
                     menssagen=f'O valor <{err}>, não foi fornecido',
@@ -587,29 +607,48 @@ class HTMLGenerator(HTMLGeneratorTags):
             modo='a+'
         )
 
-    def insert_css_style(self) -> None:
+    def update_css_style(self, content: str) -> None:
         """
-        Copia o ficheiro de estilo defenido através
-        da opção "tema" no ficheiro .htt-config,
-        para a pasta de output "htt-output"
+        Atualiza o ficheiro de css com o conteudo fornecido
         """
+        # Write css file to htt-output
+        self.file_handeling.escrever_conteudo_ficheiro(
+            modo='+a',
+            ficheiro=self.__gen_css_file_path(),
+            conteudo=content
+        )
 
-        # Get css theme file path
-        tema_css_path = os.path.join(
+    def __get_css_file_path(self) -> str:
+        """
+        Get css theme file path
+        """
+        return os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'css',
             (self.configs.tema + '.css')
         )
 
+    def __gen_css_file_path(self) -> str:
+        """
+        Generates the css theme file path.
+        """
+        return os.path.join(
+            self.output_pasta_path,
+            (self.configs.tema + '.css')
+        )
+
+    def insert_css_style(self) -> None:
+        """
+        Cria o ficheiro de estilo defenido através
+        da opção "tema" no ficheiro .htt-config,
+        para a pasta de output "htt-output"
+        """
         # Write css file to htt-output
         self.file_handeling.escrever_conteudo_ficheiro(
-            ficheiro=os.path.join(
-                self.output_pasta_path,
-                (self.configs.tema + '.css')
-            ),
             modo='w',
+            ficheiro=self.__gen_css_file_path(),
             conteudo=self.file_handeling.resolver_conteudo_ficheiro(
-                tema_css_path
+                self.__get_css_file_path()
             )
         )
 
@@ -618,21 +657,24 @@ class HTMLGenerator(HTMLGeneratorTags):
         'Transpila' os conteudos dos templates htt, para html e css
         de uma maneira asyncrona e threaded
         """
-        # Ao utilizar o loop das running tasks, posso adicionar tasks ao mesmo loop,
-        # sem bloquear o loop que itera pelos templates, e o loop das tasks
-
-        # Get templates to transpile
-        for template_name, template_file in self.templates.items():
-            # Get the running tasks @ loop
-            asyncio.get_running_loop().\
-                create_task(  # Create a new task for a new file
-                    # And make that task run on a new thread
-                    asyncio.to_thread(
-                        self.transpile_htt_to_html,
-                        template_name,
-                        template_file
-                    )
-            )
 
         # Add css style
         self.insert_css_style()
+
+        # Ao utilizar o loop das running tasks, posso adicionar tasks ao mesmo loop,
+        # sem bloquear o loop que itera pelos templates, e o loop das tasks
+
+        # Get the running tasks @ loop
+        async_new_file_gen_running_loop = asyncio.get_running_loop()
+
+        # Get templates to transpile
+        for template_name, template_file in self.templates.items():
+            async_new_file_gen_running_loop.create_task(
+                # Create a new task for a new file
+                # And make that task run on a new thread
+                asyncio.to_thread(
+                    self.transpile_htt_to_html,
+                    template_name,
+                    template_file
+                )
+            )
