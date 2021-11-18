@@ -22,7 +22,7 @@ def resolver_cli_args(arg: str, param: str) -> None:
         param (any): Parametro a fornecer ao argumento
     """
     # Corre um argumento (dos disponiveis) com o parametro fornecido
-    CLI_ARGS[arg].run(param, **CLI_STORE)
+    CLI_ARGS[arg].run(param)
 
 
 def run_arg_help(arg: str) -> None:
