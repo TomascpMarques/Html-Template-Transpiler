@@ -140,18 +140,23 @@ class FileHandler:
             dict[str, os.DirEntry] | None: Dir entrys existentes ou None
         """
         # If default path use self.caminho else use caminho + path
-        return dict(
-            (dir_entry.name, dir_entry) for dir_entry in os.scandir(
-                self.caminho
-            )
-        ) if path == '' else dict(
-            (dir_entry.name, dir_entry) for dir_entry in os.scandir(
-                os.path.join(
-                    self.caminho,
-                    os.path.abspath(path)
+        try:
+            return dict(
+                (dir_entry.name, dir_entry) for dir_entry in os.scandir(
+                    self.caminho
+                )
+            ) if path == '' else dict(
+                (dir_entry.name, dir_entry) for dir_entry in os.scandir(
+                    os.path.join(
+                        self.caminho,
+                        os.path.abspath(path)
+                    )
                 )
             )
-        )
+        except FileNotFoundError as err:
+            erro_exit(
+                menssagen=f'Ficheiro não encontrado\n <{err}>'
+            )
 
     def get_current_dir_entry(self) -> list[os.DirEntry]:
         """
