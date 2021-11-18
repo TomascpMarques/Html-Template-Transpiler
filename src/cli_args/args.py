@@ -10,7 +10,6 @@ from cli.arg_setup import CliArgumento
 from cli.erros import erro_exit
 from cli_args.file_resolver import files_arg
 from cli_args.config_resolver import config_arg
-from cli_store.store import CLI_STORE
 
 
 def resolver_cli_args(arg: str, param: str) -> None:
