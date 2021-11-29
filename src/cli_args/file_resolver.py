@@ -8,10 +8,11 @@ from typing import Any
 
 # Program Modules
 from cli.arg_setup import CliArgumento
+from cli_store.store import cli_store_get
 from file_templating.templater import HTT_CONFIG_FILE, Templater
 
 
-def run_arg_files(path_ficheiros: str, **kwargs: Any) -> None:
+def run_arg_files(path_ficheiros: str, **_kwargs: Any) -> None:
     """
     Resolve o argumento para lidar com os ficheiros dados
 
@@ -19,8 +20,9 @@ def run_arg_files(path_ficheiros: str, **kwargs: Any) -> None:
         path_ficheiros (str): Caminho até à pasta que fornece os ficheiros alvo
     """
     config_path: str = ''
-    if kwargs.get('htt-config') is not None:
-        config_path = kwargs['htt-config']
+    print(f"->>>{cli_store_get('htt-config')}")
+    if cli_store_get('htt-config') is not None:
+        config_path = str(cli_store_get('htt-config'))
     else:
         config_path = HTT_CONFIG_FILE
 

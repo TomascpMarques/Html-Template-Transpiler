@@ -7,7 +7,7 @@ import asyncio
 import os
 import re
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Generator
 
 import requests
 
@@ -40,7 +40,7 @@ class TemplateFile():
     def __getattr__(self, key: str):
         return self.__dict__.get(key)
 
-    def items(self) -> tuple:
+    def items(self) -> Generator:
         """
         Devolve os atributuos da class numa tuple
 
@@ -234,7 +234,7 @@ class TemplatingFiles(FileHandler):
         if re.match(link_regex_pattern, custom_tags_path) is not None:
             # The htt manifesto is a file in a github project directory,
             # that stores the base folders link for the custom tags folder,
-            # and a list of the tag forlders to download from the custom tags folder
+            # and a list of the tag folders to download from the custom tags folder
             htt_manifesto_request: requests.Response = \
                 requests.get(
                     url='https://raw.githubusercontent.com/' + custom_tags_path
@@ -245,8 +245,8 @@ class TemplatingFiles(FileHandler):
                 or htt_manifesto_request.text.__len__() <= 1
             ):
                 erro_exit(
-                    menssagen='O ficheiro de manifesto para as tags não foi alcançavel',
-                    tipo_erro='ManifestoNotOK'
+                    menssagen='O ficheiro de manifesto para as tags não foi alcançado',
+                    tipo_erro='ManifestoNotUsable'
                 )
                 return None
 
@@ -273,6 +273,9 @@ class TemplatingFiles(FileHandler):
                         if key[key.index('.'):] in HTT_FILE_EXTENSIONS
                     )
                 )
+
+        print(
+            f'Tags found: \n\t{", ".join(self.tags_custom.keys())}\n{"-"*20}')
 
         custom_tags: list[tuple[str, ...]] = []
         for _, ficheiro in self.tags_custom.items():
@@ -379,9 +382,9 @@ class HTMLGeneratorTags:
 
         # check for custom tags=
         if self.valid_tags_custom is not None and '.htt.custom' in tag:
+            print(f"Custom tags: {self.valid_tags_custom}")
             if tag in self.valid_tags_custom:
                 tag_content: str = self.valid_tags_custom[tag][0]
-
                 # css style formatting for regex validation
                 tag_style: str = ''.join(
                     map(
@@ -390,12 +393,12 @@ class HTMLGeneratorTags:
                     )
                 )
 
-                pattern_one: re.Pattern = re.compile(
+                css_style_pattern: re.Pattern = re.compile(
                     r'\.[A-z-_]+\s{0,}\{.+\}', re.MULTILINE
                 )
 
                 # only add css classes
-                if re.findall(pattern_one, tag_style) is not None:
+                if re.findall(css_style_pattern, tag_style) is not None:
                     cli_store_update(
                         'custom-tags-css',
                         ''.join(

@@ -157,6 +157,7 @@ class FileHandler:
             erro_exit(
                 menssagen=f'Ficheiro não encontrado\n <{err}>'
             )
+            return
 
     def get_current_dir_entry(self) -> list[os.DirEntry]:
         """
@@ -404,6 +405,7 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
        # Cria o dicionário com os valores e chaves corretos
        # de config, para adicionar à struct
 
+    print(f"AAA: {lista_temp_valores_conf}")
     configs_valores_dict: dict[str, object] = dict(
         (
             line[0: line.index(':')-1],   # key

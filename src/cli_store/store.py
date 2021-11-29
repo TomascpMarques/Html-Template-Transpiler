@@ -4,14 +4,14 @@ Cli global store
 
 from typing import Any, TypeVar
 
-Typing = TypeVar('Typing')
+SomeType = TypeVar('SomeType')
 
 CLI_STORE: dict[str, Any] = {
     'htt-config': '.httconfig',
 }
 
 
-def cli_store_set(key: str, value: Typing) -> Typing:
+def cli_store_set(key: str, value: SomeType) -> SomeType:
     """
     Sets a value in the store.
     """
@@ -20,7 +20,7 @@ def cli_store_set(key: str, value: Typing) -> Typing:
     return value
 
 
-def cli_store_update(key: str, value: Typing) -> Typing:
+def cli_store_update(key: str, value: SomeType) -> SomeType:
     """
     Updates a value in the store if key already exists.
     Else creates a new key/value pair.
