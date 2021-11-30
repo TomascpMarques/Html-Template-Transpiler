@@ -6,7 +6,7 @@ import re
 from typing import Any
 
 from cli.arg_setup import CliArgumento
-from cli_store.store import cli_store_get, cli_store_set
+from cli_store.store import cli_store_set
 
 
 def run_arg_config(path_config: str, **__kwargs: Any) -> None:
@@ -23,7 +23,6 @@ def run_arg_config(path_config: str, **__kwargs: Any) -> None:
         'htt-config',
         path_config
     )
-    print(f'set: {cli_store_get("htt-config")}')
 
 
 config_mens_ajuda: str = \

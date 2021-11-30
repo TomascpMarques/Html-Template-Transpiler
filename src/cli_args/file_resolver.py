@@ -20,7 +20,6 @@ def run_arg_files(path_ficheiros: str, **_kwargs: Any) -> None:
         path_ficheiros (str): Caminho até à pasta que fornece os ficheiros alvo
     """
     config_path: str = ''
-    print(f"->>>{cli_store_get('htt-config')}")
     if cli_store_get('htt-config') is not None:
         config_path = str(cli_store_get('htt-config'))
     else:

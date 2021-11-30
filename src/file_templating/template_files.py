@@ -13,7 +13,7 @@ import requests
 
 # Program Modules
 from cli.erros import erro_exit
-from cli_store.store import cli_store_update, CLI_STORE
+from cli_store.store import cli_store_set, CLI_STORE
 from file_handeling.handler import (
     HTT_FILE_EXTENSIONS,
     FileHandler,
@@ -380,36 +380,40 @@ class HTMLGeneratorTags:
             print(f"No custom tags to use for <{tag}>!")
             return ''
 
-        # check for custom tags=
-        if self.valid_tags_custom is not None and '.htt.custom' in tag:
-            print(f"Custom tags: {self.valid_tags_custom}")
-            if tag in self.valid_tags_custom:
-                tag_content: str = self.valid_tags_custom[tag][0]
-                # css style formatting for regex validation
-                tag_style: str = ''.join(
-                    map(
-                        lambda x: '\\n' if x == r'\n' else x,
-                        self.valid_tags_custom[tag][1]
-                    )
+        # check for custom tags
+        if (
+            self.valid_tags_custom is not None
+            and '.htt.custom' in tag
+            and tag in self.valid_tags_custom
+        ):
+            tag_content: str = self.valid_tags_custom[tag][0]
+            # css style formatting for regex validation
+            tag_style: str = ''.join(
+                map(
+                    lambda x: '\\n' if x == r'\n' else x,
+                    self.valid_tags_custom[tag][1]
+                )
+            )
+
+            css_style_pattern: re.Pattern = re.compile(
+                r'\.[A-z-_]+\s{0,}\{.+\}', re.MULTILINE
+            )
+
+            refactored_css_style: str = ''.join(
+                map(
+                    lambda x: r'\n' if x == '\\n' else x,
+                    tag_style
+                )
+            )
+
+            # only add css classes
+            if re.findall(css_style_pattern, tag_style) is not None:
+                cli_store_set(
+                    'custom-tags-css',
+                    refactored_css_style
                 )
 
-                css_style_pattern: re.Pattern = re.compile(
-                    r'\.[A-z-_]+\s{0,}\{.+\}', re.MULTILINE
-                )
-
-                # only add css classes
-                if re.findall(css_style_pattern, tag_style) is not None:
-                    cli_store_update(
-                        'custom-tags-css',
-                        ''.join(
-                            map(
-                                lambda x: r'\n' if x == '\\n' else x,
-                                tag_style
-                            )
-                        )
-                    )
-
-                return f'<div id="{tag_id}">\n{tag_content}\n</div>'
+            return f'<div id="{tag_id}">\n{tag_content}\n</div>'
 
         if tag not in self.valid_tags:
             erro_exit(
@@ -567,7 +571,7 @@ class HTMLGenerator(HTMLGeneratorTags):
             ficheiro_path=ficheiro_path
         )
 
-        novo_conteudo_ficheiro.append('<body>\n<main>')
+        novo_conteudo_ficheiro.append('<body>\n<main>\n')
 
         previous_content: str | None = CLI_STORE.get('custom-tags-css')
 
@@ -577,7 +581,6 @@ class HTMLGenerator(HTMLGeneratorTags):
             try:
                 novo_conteudo_ficheiro.append(
                     # Chama as funções adequadas para as tags dadas
-                    # cicle
                     self.html_tag_resolve(
                         other_options=section,
                         tag=section['tag'],
@@ -588,9 +591,9 @@ class HTMLGenerator(HTMLGeneratorTags):
                     CLI_STORE.get(
                         'custom-tags-css'
                     )
+
                 if current_custom_tags is not None and current_custom_tags != previous_content:
                     self.update_css_style(current_custom_tags)
-
             except KeyError as err:
                 erro_exit(
                     menssagen=f'O valor <{err}>, não foi fornecido',
@@ -599,7 +602,7 @@ class HTMLGenerator(HTMLGeneratorTags):
                 )
 
         # Close html body
-        novo_conteudo_ficheiro.append('</main></body>')
+        novo_conteudo_ficheiro.append('\n</main></body>')
         # Close html tag
         novo_conteudo_ficheiro.append('\n</html>')
 
