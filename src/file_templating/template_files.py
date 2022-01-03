@@ -465,7 +465,7 @@ class HTMLGenerator(HTMLGeneratorTags):
             'htt-output'
         )
 
-        # Corre de uma maneira asyncrona e threaded
+        # Corre de uma maneira asincrona e em uma threads
         asyncio.run(
             self.gen_html()
         )
