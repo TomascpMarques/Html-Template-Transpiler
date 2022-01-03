@@ -36,7 +36,7 @@ config_arg: CliArgumento = CliArgumento(
     erro_validacao='Não foi possivél validar o valor para o argumento <config>',
     mensagem_ajuda=config_mens_ajuda,
     re_validacao_tipo_valor=re.compile(
-        r'(((^\.\.\/|^\.\/|^\.)|(^\.\/|^\.|^~\/|^\/)(\w+\/)+)+\.httconfig)' +
+        r'^(~\/|\.{1,2}\/|\/)([A-z_-]+\/){1,}\.httconfig$' +
         r'|\S+\/\w+\.httconfig$'
     ),
 )
