@@ -132,7 +132,7 @@ class FileHandler:
             return None
         return self._conteudo.get(path)
 
-    def path_dir_entrys(self, path: str = '') -> dict[str, os.DirEntry] | None:
+    def path_dir_entries(self, path: str = '') -> dict[str, os.DirEntry] | None:
         """
         Devolve as dir entrys do path pedido, a partir do caminho
 

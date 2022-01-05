@@ -8,12 +8,11 @@ import os
 import re
 from dataclasses import dataclass
 from typing import Any, Generator
-
 import requests
 
 # Program Modules
 from cli.erros import erro_exit
-from cli_store.store import cli_store_set, CLI_STORE
+from cli_store.store import cli_store_get, cli_store_set, CLI_STORE
 from file_handeling.handler import (
     HTT_FILE_EXTENSIONS,
     FileHandler,
@@ -263,13 +262,39 @@ class TemplatingFiles(FileHandler):
 
         self.tags_custom: dict[str, os.DirEntry] = {}
         if custom_tags_path is not None:
-            dir_entrys: dict[str, os.DirEntry] | None = self.path_dir_entrys(
+            dir_entries: dict[str, os.DirEntry] | None = self.path_dir_entries(
                 path=custom_tags_path
             )
-            if dir_entrys is not None:
+
+            if dir_entries is not None:
+                if cli_store_get('htt-config-fallback') is not None:
+                    default_htt_configs = self.resolver_conteudo_ficheiro(
+                        str(cli_store_get('htt-config-fallback'))
+                    )
+
+                    if parse_htt_file(
+                        default_htt_configs
+                    ).get(
+                        'tags_custom'
+                    ) is not None:
+                        default_custom_tags_path = str(
+                            parse_htt_file(
+                                default_htt_configs
+                            ).get('tags_custom')
+                        )
+                        default_custom_tags_entries: dict[str, os.DirEntry] | None = \
+                            self.path_dir_entries(
+                                path=default_custom_tags_path
+                        )
+                        if default_custom_tags_entries is not None:
+                            dir_entries.update(
+                                **dir_entries,
+                                **default_custom_tags_entries
+                            )
+
                 self.tags_custom.update(
                     dict(
-                        (key, val) for key, val in dir_entrys.items()
+                        (key, val) for key, val in dir_entries.items()
                         if key[key.index('.'):] in HTT_FILE_EXTENSIONS
                     )
                 )
@@ -329,7 +354,8 @@ class HTMLGeneratorTags:
         self.valid_tags: list[str] = [
             'h1', 'h2', 'h3',
             'h4', 'h5', 'p',
-            'span', 'hr', 'a'
+            'span', 'hr', 'a',
+            'img', 'section',
         ]
 
         # Add custom tags
@@ -602,7 +628,7 @@ class HTMLGenerator(HTMLGeneratorTags):
                 )
 
         # Close html body
-        novo_conteudo_ficheiro.append('\n</main></body>')
+        novo_conteudo_ficheiro.append('\n</main>\n</body>')
         # Close html tag
         novo_conteudo_ficheiro.append('\n</html>')
 

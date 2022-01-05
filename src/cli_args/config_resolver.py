@@ -37,6 +37,6 @@ config_arg: CliArgumento = CliArgumento(
     mensagem_ajuda=config_mens_ajuda,
     re_validacao_tipo_valor=re.compile(
         r'^(~\/|\.{1,2}\/|\/)([A-z_-]+\/){1,}\.httconfig$' +
-        r'|\S+\/\w+\.httconfig$'
+        r'|\S+$'
     ),
 )

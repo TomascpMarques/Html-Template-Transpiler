@@ -8,7 +8,7 @@ from typing import Any
 
 # Program Modules
 from cli.arg_setup import CliArgumento
-from cli_store.store import cli_store_get
+from cli_store.store import cli_store_get, cli_store_set
 from file_templating.templater import HTT_CONFIG_FILE, Templater
 
 
@@ -22,15 +22,18 @@ def run_arg_files(path_ficheiros: str, **_kwargs: Any) -> None:
     config_path: str = ''
     if cli_store_get('htt-config') is not None:
         config_path = str(cli_store_get('htt-config'))
+        # Default tag usage fallback, on by default
+        if HTT_CONFIG_FILE != config_path:
+            cli_store_set('htt-config-fallback', HTT_CONFIG_FILE)
+        else:
+            cli_store_set('htt-config-fallback', None)
     else:
         config_path = HTT_CONFIG_FILE
 
     # Init o processo de templating com os ficheiros fornecidos
     project_templater = Templater(
         path=path_ficheiros,
-        config_file_path=(
-            config_path
-        )
+        config_file_path=config_path
     )
 
     print('Ficheiros (.htt) utilizados:')
@@ -52,6 +55,6 @@ files_arg: CliArgumento = CliArgumento(
     erro_validacao='Não foi possivél validar o valor para o argumento <file>',
     mensagem_ajuda=files_mens_ajuda,
     re_validacao_tipo_valor=re.compile(
-        r'(^\.\.\/|^\.\/|^\.)|(^\.\/|^\.|^~\/|^\/)(\w+\/)+'
+        r'^(~\/|\.{1,2}\/|\/)([A-z_-]+\/){1,}[A-z_-]+'
     ),
 )
