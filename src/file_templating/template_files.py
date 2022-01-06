@@ -288,7 +288,7 @@ class TemplatingFiles(FileHandler):
                         )
                         if default_custom_tags_entries is not None:
                             dir_entries.update(
-                                **dir_entries,
+                                dir_entries,
                                 **default_custom_tags_entries
                             )
 

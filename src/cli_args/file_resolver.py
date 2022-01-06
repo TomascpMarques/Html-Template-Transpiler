@@ -30,6 +30,9 @@ def run_arg_files(path_ficheiros: str, **_kwargs: Any) -> None:
     else:
         config_path = HTT_CONFIG_FILE
 
+    # Set project directorie
+    cli_store_set('htt-project', path_ficheiros)
+
     # Init o processo de templating com os ficheiros fornecidos
     project_templater = Templater(
         path=path_ficheiros,
@@ -55,6 +58,6 @@ files_arg: CliArgumento = CliArgumento(
     erro_validacao='Não foi possivél validar o valor para o argumento <file>',
     mensagem_ajuda=files_mens_ajuda,
     re_validacao_tipo_valor=re.compile(
-        r'^(~\/|\.{1,2}\/|\/)([A-z_-]+\/){1,}[A-z_-]+'
+        r'^(\.{1,2}\/|\~{1}\/|\/{1})\S+\/$'
     ),
 )

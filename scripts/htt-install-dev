@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Setup repo store folder
+cd "/home/$USER"
+mkdir .htt
+cd .htt
+
+# Get repository from url
+cp -r "/home/$USER/python-licenciatura/Html-Template-Transpiler" "/home/$USER/.htt"
+
+# Move to project folder/scripts
+cd 'Html-Template-Transpiler/scripts'
+
+# Give execution permition
+chmod +x htt
+
+# Make available from everywher
+sudo cp htt /usr/bin/

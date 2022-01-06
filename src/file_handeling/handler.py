@@ -405,13 +405,19 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
        # Cria o dicionário com os valores e chaves corretos
        # de config, para adicionar à struct
 
-    configs_valores_dict: dict[str, object] = dict(
-        (
-            line[0: line.index(':')-1],   # key
-            formatar_valor(
-                line[line.index(':')+1:]  # valor
-            )
-        ) for line in lista_temp_valores_conf
-    )
+    configs_valores_dict: dict[str, object] = {}
+    try:
+        configs_valores_dict = dict(
+            (
+                line[0: line.index(':')-1],   # key
+                formatar_valor(
+                    line[line.index(':')+1:]  # valor
+                )
+            ) for line in lista_temp_valores_conf
+        )
+    except ValueError:
+        erro_exit(menssagen='O ficheiro de template foi mal formatado,\
+            \n verifique o fim do ficheiro',
+                  time_stamp=True, tipo_erro='BadFileGiven')
 
     return configs_valores_dict

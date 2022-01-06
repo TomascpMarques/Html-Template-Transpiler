@@ -33,9 +33,6 @@ class Templater(FileHandler):
         # Configs defenition
         self.configs: TemplateConfig
 
-        print(
-            f'Match?: {re.match(regex_pattern, config_file_path) is not None}'
-        )
         # Templating Configs
         if re.match(regex_pattern, config_file_path) is not None:
             req: requests.Response = requests.get(
