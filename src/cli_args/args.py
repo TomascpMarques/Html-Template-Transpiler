@@ -68,7 +68,7 @@ help_arg: CliArgumento = CliArgumento(
     func_validacao=lambda x: x.isalpha()
 )
 
-
+# program args
 CLI_ARGS: dict[str, CliArgumento] = {
     'files': files_arg,
     'config': config_arg,
