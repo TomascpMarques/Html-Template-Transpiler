@@ -40,15 +40,32 @@ class FileHandler:
         self.caminho: str = path
 
         # Normalização do camiho do file handler atual
-        os.chdir(self.caminho)
+        print("cur dir:", os.getcwd())
+        print("path: ", path)
+        print("self.caminho: ", self.caminho)
+        try:
+            self.caminho = os.path.relpath(self.caminho)
+            os.chdir(self.caminho)
+        except FileNotFoundError:
+            erro_exit(
+                'Erro ao tentar basear o projeto, a partir do path especificado'
+            )
+        print("cur dir 2: ", os.getcwd())
 
+        print("self.caminho 2: ", self.caminho)
         # Procura por ficheiros e pastas que possam conter ficheiros válidos
-        self._conteudo: dict[str, os.DirEntry] = dict(
-            (entrada.name, entrada) for entrada in os.scandir(path)
-            if entrada.is_file()
-            and entrada.name[entrada.name.index('.'):]
-            in HTT_FILE_EXTENSIONS
-        )
+        try:
+            self._conteudo: dict[str, os.DirEntry] = dict(
+                (entrada.name, entrada) for entrada in os.scandir(os.getcwd())
+                if entrada.is_file()
+                and entrada.name[entrada.name.index('.'):]
+                in HTT_FILE_EXTENSIONS
+            )
+        except FileNotFoundError:
+            erro_exit(
+                f'A pasta especificada <{self.caminho}>,\
+                    não foi encontrada ou não contêm ficheiros válidos'
+            )
 
         # Verifica se a pasta alvo contêm o conteudo minímo necessário
         if not self._conteudo.__len__():
@@ -97,6 +114,8 @@ class FileHandler:
         Returns:
             list[str]: Conteudos do ficheiro em linhas
         """
+        print("çç: ", os.getcwd())
+        print("çç: ", path)
         try:
             with open(
                 path, 'r',
@@ -132,7 +151,7 @@ class FileHandler:
             return None
         return self._conteudo.get(path)
 
-    def path_dir_entrys(self, path: str = '') -> dict[str, os.DirEntry] | None:
+    def path_dir_entries(self, path: str = '') -> dict[str, os.DirEntry] | None:
         """
         Devolve as dir entrys do path pedido, a partir do caminho
 
@@ -157,6 +176,7 @@ class FileHandler:
             erro_exit(
                 menssagen=f'Ficheiro não encontrado\n <{err}>'
             )
+            return
 
     def get_current_dir_entry(self) -> list[os.DirEntry]:
         """
@@ -404,13 +424,19 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
        # Cria o dicionário com os valores e chaves corretos
        # de config, para adicionar à struct
 
-    configs_valores_dict: dict[str, object] = dict(
-        (
-            line[0: line.index(':')-1],   # key
-            formatar_valor(
-                line[line.index(':')+1:]  # valor
-            )
-        ) for line in lista_temp_valores_conf
-    )
+    configs_valores_dict: dict[str, object] = {}
+    try:
+        configs_valores_dict = dict(
+            (
+                line[0: line.index(':')-1],   # key
+                formatar_valor(
+                    line[line.index(':')+1:]  # valor
+                )
+            ) for line in lista_temp_valores_conf
+        )
+    except ValueError:
+        erro_exit(menssagen='O ficheiro de template foi mal formatado,\
+            \n verifique o fim do ficheiro',
+                  time_stamp=True, tipo_erro='BadFileGiven')
 
     return configs_valores_dict

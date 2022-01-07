@@ -66,7 +66,7 @@ class Cli:
         # Valida os argumentos extraidos
         for arg in self.argumentos_parssed:
             if not validar_argumento(
-                CLI_ARGS[arg],  # Argumento a validar o "arg"" contra
+                CLI_ARGS[arg],  # Argumento a validar o "arg" contra
                 self.argumentos_parssed[arg]  # O valor do argumento dado
             ):
                 erro_exit(

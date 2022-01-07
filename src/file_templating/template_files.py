@@ -7,13 +7,12 @@ import asyncio
 import os
 import re
 from dataclasses import dataclass
-from typing import Any
-
+from typing import Any, Generator
 import requests
 
 # Program Modules
 from cli.erros import erro_exit
-from cli_store.store import cli_store_update, CLI_STORE
+from cli_store.store import cli_store_get, cli_store_set, CLI_STORE
 from file_handeling.handler import (
     HTT_FILE_EXTENSIONS,
     FileHandler,
@@ -40,7 +39,7 @@ class TemplateFile():
     def __getattr__(self, key: str):
         return self.__dict__.get(key)
 
-    def items(self) -> tuple:
+    def items(self) -> Generator:
         """
         Devolve os atributuos da class numa tuple
 
@@ -234,7 +233,7 @@ class TemplatingFiles(FileHandler):
         if re.match(link_regex_pattern, custom_tags_path) is not None:
             # The htt manifesto is a file in a github project directory,
             # that stores the base folders link for the custom tags folder,
-            # and a list of the tag forlders to download from the custom tags folder
+            # and a list of the tag folders to download from the custom tags folder
             htt_manifesto_request: requests.Response = \
                 requests.get(
                     url='https://raw.githubusercontent.com/' + custom_tags_path
@@ -245,8 +244,8 @@ class TemplatingFiles(FileHandler):
                 or htt_manifesto_request.text.__len__() <= 1
             ):
                 erro_exit(
-                    menssagen='O ficheiro de manifesto para as tags não foi alcançavel',
-                    tipo_erro='ManifestoNotOK'
+                    menssagen='O ficheiro de manifesto para as tags não foi alcançado',
+                    tipo_erro='ManifestoNotUsable'
                 )
                 return None
 
@@ -263,16 +262,45 @@ class TemplatingFiles(FileHandler):
 
         self.tags_custom: dict[str, os.DirEntry] = {}
         if custom_tags_path is not None:
-            dir_entrys: dict[str, os.DirEntry] | None = self.path_dir_entrys(
+            dir_entries: dict[str, os.DirEntry] | None = self.path_dir_entries(
                 path=custom_tags_path
             )
-            if dir_entrys is not None:
+
+            if dir_entries is not None:
+                if cli_store_get('htt-config-fallback') is not None:
+                    default_htt_configs = self.resolver_conteudo_ficheiro(
+                        str(cli_store_get('htt-config-fallback'))
+                    )
+
+                    if parse_htt_file(
+                        default_htt_configs
+                    ).get(
+                        'tags_custom'
+                    ) is not None:
+                        default_custom_tags_path = str(
+                            parse_htt_file(
+                                default_htt_configs
+                            ).get('tags_custom')
+                        )
+                        default_custom_tags_entries: dict[str, os.DirEntry] | None = \
+                            self.path_dir_entries(
+                                path=default_custom_tags_path
+                        )
+                        if default_custom_tags_entries is not None:
+                            dir_entries.update(
+                                dir_entries,
+                                **default_custom_tags_entries
+                            )
+
                 self.tags_custom.update(
                     dict(
-                        (key, val) for key, val in dir_entrys.items()
+                        (key, val) for key, val in dir_entries.items()
                         if key[key.index('.'):] in HTT_FILE_EXTENSIONS
                     )
                 )
+
+        print(
+            f'Tags found: \n\t{", ".join(self.tags_custom.keys())}\n{"-"*20}')
 
         custom_tags: list[tuple[str, ...]] = []
         for _, ficheiro in self.tags_custom.items():
@@ -326,7 +354,8 @@ class HTMLGeneratorTags:
         self.valid_tags: list[str] = [
             'h1', 'h2', 'h3',
             'h4', 'h5', 'p',
-            'span', 'hr', 'a'
+            'span', 'hr', 'a',
+            'img', 'section',
         ]
 
         # Add custom tags
@@ -377,36 +406,40 @@ class HTMLGeneratorTags:
             print(f"No custom tags to use for <{tag}>!")
             return ''
 
-        # check for custom tags=
-        if self.valid_tags_custom is not None and '.htt.custom' in tag:
-            if tag in self.valid_tags_custom:
-                tag_content: str = self.valid_tags_custom[tag][0]
+        # check for custom tags
+        if (
+            self.valid_tags_custom is not None
+            and '.htt.custom' in tag
+            and tag in self.valid_tags_custom
+        ):
+            tag_content: str = self.valid_tags_custom[tag][0]
+            # css style formatting for regex validation
+            tag_style: str = ''.join(
+                map(
+                    lambda x: '\\n' if x == r'\n' else x,
+                    self.valid_tags_custom[tag][1]
+                )
+            )
 
-                # css style formatting for regex validation
-                tag_style: str = ''.join(
-                    map(
-                        lambda x: '\\n' if x == r'\n' else x,
-                        self.valid_tags_custom[tag][1]
-                    )
+            css_style_pattern: re.Pattern = re.compile(
+                r'\.[A-z-_]+\s{0,}\{.+\}', re.MULTILINE
+            )
+
+            refactored_css_style: str = ''.join(
+                map(
+                    lambda x: r'\n' if x == '\\n' else x,
+                    tag_style
+                )
+            )
+
+            # only add css classes
+            if re.findall(css_style_pattern, tag_style) is not None:
+                cli_store_set(
+                    'custom-tags-css',
+                    refactored_css_style
                 )
 
-                pattern_one: re.Pattern = re.compile(
-                    r'\.[A-z-_]+\s{0,}\{.+\}', re.MULTILINE
-                )
-
-                # only add css classes
-                if re.findall(pattern_one, tag_style) is not None:
-                    cli_store_update(
-                        'custom-tags-css',
-                        ''.join(
-                            map(
-                                lambda x: r'\n' if x == '\\n' else x,
-                                tag_style
-                            )
-                        )
-                    )
-
-                return f'<div id="{tag_id}">\n{tag_content}\n</div>'
+            return f'<div id="{tag_id}">\n{tag_content}\n</div>'
 
         if tag not in self.valid_tags:
             erro_exit(
@@ -458,7 +491,7 @@ class HTMLGenerator(HTMLGeneratorTags):
             'htt-output'
         )
 
-        # Corre de uma maneira asyncrona e threaded
+        # Corre de uma maneira asincrona e em uma threads
         asyncio.run(
             self.gen_html()
         )
@@ -564,7 +597,7 @@ class HTMLGenerator(HTMLGeneratorTags):
             ficheiro_path=ficheiro_path
         )
 
-        novo_conteudo_ficheiro.append('<body>\n<main>')
+        novo_conteudo_ficheiro.append('<body>\n<main>\n')
 
         previous_content: str | None = CLI_STORE.get('custom-tags-css')
 
@@ -574,7 +607,6 @@ class HTMLGenerator(HTMLGeneratorTags):
             try:
                 novo_conteudo_ficheiro.append(
                     # Chama as funções adequadas para as tags dadas
-                    # cicle
                     self.html_tag_resolve(
                         other_options=section,
                         tag=section['tag'],
@@ -585,9 +617,9 @@ class HTMLGenerator(HTMLGeneratorTags):
                     CLI_STORE.get(
                         'custom-tags-css'
                     )
+
                 if current_custom_tags is not None and current_custom_tags != previous_content:
                     self.update_css_style(current_custom_tags)
-
             except KeyError as err:
                 erro_exit(
                     menssagen=f'O valor <{err}>, não foi fornecido',
@@ -596,7 +628,7 @@ class HTMLGenerator(HTMLGeneratorTags):
                 )
 
         # Close html body
-        novo_conteudo_ficheiro.append('</main></body>')
+        novo_conteudo_ficheiro.append('\n</main>\n</body>')
         # Close html tag
         novo_conteudo_ficheiro.append('\n</html>')
 

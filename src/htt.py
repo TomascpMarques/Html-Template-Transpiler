@@ -13,7 +13,6 @@ def main():
     Função a correr se o ficheiro
     for invocado como um script.
     """
-
     program_cli = Cli(sys.argv, **CLI_ARGS)
     program_cli.run()
 

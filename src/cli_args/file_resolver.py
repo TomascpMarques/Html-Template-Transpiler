@@ -8,10 +8,11 @@ from typing import Any
 
 # Program Modules
 from cli.arg_setup import CliArgumento
+from cli_store.store import cli_store_get, cli_store_set
 from file_templating.templater import HTT_CONFIG_FILE, Templater
 
 
-def run_arg_files(path_ficheiros: str, **kwargs: Any) -> None:
+def run_arg_files(path_ficheiros: str, **_kwargs: Any) -> None:
     """
     Resolve o argumento para lidar com os ficheiros dados
 
@@ -19,17 +20,23 @@ def run_arg_files(path_ficheiros: str, **kwargs: Any) -> None:
         path_ficheiros (str): Caminho até à pasta que fornece os ficheiros alvo
     """
     config_path: str = ''
-    if kwargs.get('htt-config') is not None:
-        config_path = kwargs['htt-config']
+    if cli_store_get('htt-config') is not None:
+        config_path = str(cli_store_get('htt-config'))
+        # Default tag usage fallback, on by default
+        if HTT_CONFIG_FILE != config_path:
+            cli_store_set('htt-config-fallback', HTT_CONFIG_FILE)
+        else:
+            cli_store_set('htt-config-fallback', None)
     else:
         config_path = HTT_CONFIG_FILE
+
+    # Set project directorie
+    cli_store_set('htt-project', path_ficheiros)
 
     # Init o processo de templating com os ficheiros fornecidos
     project_templater = Templater(
         path=path_ficheiros,
-        config_file_path=(
-            config_path
-        )
+        config_file_path=config_path
     )
 
     print('Ficheiros (.htt) utilizados:')
@@ -48,9 +55,9 @@ files_arg: CliArgumento = CliArgumento(
     chave='files',
     run=run_arg_files,
     descricao_argumento='O ficheiro de template a transpilar',
-    erro_validacao='Não foi possivél validar o valor para o argumento <file>',
+    erro_validacao='Não foi possivél validar o valor para o argumento <files>',
     mensagem_ajuda=files_mens_ajuda,
     re_validacao_tipo_valor=re.compile(
-        r'(^\.\.\/|^\.\/|^\.)|(^\.\/|^\.|^~\/|^\/)(\w+\/)+'
+        r'^(\.{1,2}\/|\~{1}\/)\S+\/$|^[A-z_-]+\/'
     ),
 )
