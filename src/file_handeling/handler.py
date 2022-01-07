@@ -47,9 +47,7 @@ class FileHandler:
             erro_exit(
                 'Erro ao tentar basear o projeto, a partir do path especificado'
             )
-        print("cur dir 2: ", os.getcwd())
 
-        print("self.caminho 2: ", self.caminho)
         # Procura por ficheiros e pastas que possam conter ficheiros válidos
         try:
             self._conteudo: dict[str, os.DirEntry] = dict(
