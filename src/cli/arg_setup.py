@@ -48,6 +48,7 @@ def validar_argumento(campo: CliArgumento, arg: str) -> str:
     Returns:
         str | None : String (em caso de bom valor) ou None (em caso de erro)
     """
+    print(f'Arg: {arg}')
     if not campo.re_validacao_tipo_valor.match(arg):
         erro_exit(
             time_stamp=True,

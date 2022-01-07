@@ -40,9 +40,6 @@ class FileHandler:
         self.caminho: str = path
 
         # Normalização do camiho do file handler atual
-        print("cur dir:", os.getcwd())
-        print("path: ", path)
-        print("self.caminho: ", self.caminho)
         try:
             self.caminho = os.path.relpath(self.caminho)
             os.chdir(self.caminho)
@@ -114,8 +111,6 @@ class FileHandler:
         Returns:
             list[str]: Conteudos do ficheiro em linhas
         """
-        print("çç: ", os.getcwd())
-        print("çç: ", path)
         try:
             with open(
                 path, 'r',

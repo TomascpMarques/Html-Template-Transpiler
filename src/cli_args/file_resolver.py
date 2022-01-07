@@ -58,6 +58,6 @@ files_arg: CliArgumento = CliArgumento(
     erro_validacao='Não foi possivél validar o valor para o argumento <files>',
     mensagem_ajuda=files_mens_ajuda,
     re_validacao_tipo_valor=re.compile(
-        r'^(\.{1,2}\/|\~{1}\/)\S+\/$|^[A-z_-]+\/'
+        r'^(\.{1,2}\/|\~{1}\/|\/)\S+\/$|^[A-z_-]+\/'
     ),
 )
