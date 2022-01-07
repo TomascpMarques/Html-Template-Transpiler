@@ -55,9 +55,9 @@ files_arg: CliArgumento = CliArgumento(
     chave='files',
     run=run_arg_files,
     descricao_argumento='O ficheiro de template a transpilar',
-    erro_validacao='Não foi possivél validar o valor para o argumento <file>',
+    erro_validacao='Não foi possivél validar o valor para o argumento <files>',
     mensagem_ajuda=files_mens_ajuda,
     re_validacao_tipo_valor=re.compile(
-        r'^(\.{1,2}\/|\~{1}\/|\/{1})\S+\/$'
+        r'^(\.{1,2}\/|\~{1}\/)\S+\/$|^[A-z_-]+\/'
     ),
 )

@@ -40,15 +40,32 @@ class FileHandler:
         self.caminho: str = path
 
         # Normalização do camiho do file handler atual
-        os.chdir(self.caminho)
+        print("cur dir:", os.getcwd())
+        print("path: ", path)
+        print("self.caminho: ", self.caminho)
+        try:
+            self.caminho = os.path.relpath(self.caminho)
+            os.chdir(self.caminho)
+        except FileNotFoundError:
+            erro_exit(
+                'Erro ao tentar basear o projeto, a partir do path especificado'
+            )
+        print("cur dir 2: ", os.getcwd())
 
+        print("self.caminho 2: ", self.caminho)
         # Procura por ficheiros e pastas que possam conter ficheiros válidos
-        self._conteudo: dict[str, os.DirEntry] = dict(
-            (entrada.name, entrada) for entrada in os.scandir(path)
-            if entrada.is_file()
-            and entrada.name[entrada.name.index('.'):]
-            in HTT_FILE_EXTENSIONS
-        )
+        try:
+            self._conteudo: dict[str, os.DirEntry] = dict(
+                (entrada.name, entrada) for entrada in os.scandir(os.getcwd())
+                if entrada.is_file()
+                and entrada.name[entrada.name.index('.'):]
+                in HTT_FILE_EXTENSIONS
+            )
+        except FileNotFoundError:
+            erro_exit(
+                f'A pasta especificada <{self.caminho}>,\
+                    não foi encontrada ou não contêm ficheiros válidos'
+            )
 
         # Verifica se a pasta alvo contêm o conteudo minímo necessário
         if not self._conteudo.__len__():
@@ -97,6 +114,8 @@ class FileHandler:
         Returns:
             list[str]: Conteudos do ficheiro em linhas
         """
+        print("çç: ", os.getcwd())
+        print("çç: ", path)
         try:
             with open(
                 path, 'r',
