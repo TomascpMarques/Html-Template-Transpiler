@@ -23,7 +23,6 @@ class Templater(FileHandler):
     """
 
     def __init__(self, path: str, config_file_path: str) -> None:
-        print(f'The path for the file handler {path}')
         # Setup do FileHandler, com o caminho especifico
         super().__init__(path)
 

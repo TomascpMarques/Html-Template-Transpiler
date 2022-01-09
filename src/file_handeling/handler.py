@@ -40,9 +40,6 @@ class FileHandler:
         self.caminho: str = path
 
         # Normalização do camiho do file handler atual
-        print("cur dir:", os.getcwd())
-        print("path: ", path)
-        print("self.caminho: ", self.caminho)
         try:
             self.caminho = os.path.relpath(self.caminho)
             os.chdir(self.caminho)
@@ -50,9 +47,7 @@ class FileHandler:
             erro_exit(
                 'Erro ao tentar basear o projeto, a partir do path especificado'
             )
-        print("cur dir 2: ", os.getcwd())
 
-        print("self.caminho 2: ", self.caminho)
         # Procura por ficheiros e pastas que possam conter ficheiros válidos
         try:
             self._conteudo: dict[str, os.DirEntry] = dict(
@@ -114,8 +109,6 @@ class FileHandler:
         Returns:
             list[str]: Conteudos do ficheiro em linhas
         """
-        print("çç: ", os.getcwd())
-        print("çç: ", path)
         try:
             with open(
                 path, 'r',

@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd "/home/$USER/.htt/Html-Template-Transpiler"
+# cd "/home/$USER/.htt/Html-Template-Transpiler"
 
-python3.10 'src/htt.py' $@
+python3.10 "/home/$USER/.htt/Html-Template-Transpiler/src/htt.py" $@
