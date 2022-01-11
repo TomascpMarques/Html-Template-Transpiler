@@ -21,7 +21,7 @@ from typing import Any, Generator
 
 # Program Modules
 from cli.erros import erro_exit
-from cli_store.store import cli_store_get, cli_store_set
+from cli_store.store import cli_store_get
 
 # Extensões utilizadas pelo sistema de templating
 HTT_FILE_EXTENSIONS: list[str] = ['.htt', '.httconfig', '.htt.custom']
