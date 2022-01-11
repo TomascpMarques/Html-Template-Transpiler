@@ -21,6 +21,7 @@ from typing import Any, Generator
 
 # Program Modules
 from cli.erros import erro_exit
+from cli_store.store import cli_store_get
 
 # Extensões utilizadas pelo sistema de templating
 HTT_FILE_EXTENSIONS: list[str] = ['.htt', '.httconfig', '.htt.custom']
@@ -36,16 +37,24 @@ class FileHandler:
     """
 
     def __init__(self, path: str):
+        # Normalize path before new class instance is created
+        # with the original path where the app is being called
+        # makes relative paths work correctly
+        os.chdir(
+            str(cli_store_get('base_path'))
+        )
+
         # Defenição do caminho a ser utlizado pelo handler durante a sua existência
         self.caminho: str = path
 
         # Normalização do camiho do file handler atual
         try:
-            self.caminho = os.path.relpath(self.caminho)
+            self.caminho = os.path.abspath(self.caminho)
             os.chdir(self.caminho)
         except FileNotFoundError:
             erro_exit(
-                'Erro ao tentar basear o projeto, a partir do path especificado'
+                'Erro ao tentar basear o projeto, a partir do path especificado,\n' +
+                '  o ficheiro ou pasta não foi encontrada'
             )
 
         # Procura por ficheiros e pastas que possam conter ficheiros válidos
@@ -169,7 +178,7 @@ class FileHandler:
             erro_exit(
                 menssagen=f'Ficheiro não encontrado\n <{err}>'
             )
-            return
+            return None
 
     def get_current_dir_entry(self) -> list[os.DirEntry]:
         """
