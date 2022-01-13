@@ -14,20 +14,33 @@ from file_templating.templater import HTT_CONFIG_FILE, Templater
 
 def run_arg_files(path_ficheiros: str, **_kwargs: Any) -> None:
     """
-    Resolve o argumento para lidar com os ficheiros dados
+    Resolve o argumento para lidar com os ficheiros
+    fornecidos para criar o projeto
 
     Args:
         path_ficheiros (str): Caminho até à pasta que fornece os ficheiros alvo
     """
     config_path: str = ''
+
+    # Default check for custom config files
     if cli_store_get('htt-config') is not None:
-        config_path = str(cli_store_get('htt-config'))
-        # Default tag usage fallback, on by default
+        config_path = str(
+            cli_store_get('htt-config')
+        )
+        # Default config file fallback, on by default
         if HTT_CONFIG_FILE != config_path:
-            cli_store_set('htt-config-fallback', HTT_CONFIG_FILE)
+            cli_store_set(
+                'htt-config-fallback',
+                HTT_CONFIG_FILE
+            )
         else:
-            cli_store_set('htt-config-fallback', None)
+            cli_store_set(
+                'htt-config-fallback',
+                None
+            )
     else:
+        # If no custom config file is set
+        # Defaults for the "general" htt-config file path
         config_path = HTT_CONFIG_FILE
 
     # Set project directorie
@@ -42,7 +55,6 @@ def run_arg_files(path_ficheiros: str, **_kwargs: Any) -> None:
     print('Ficheiros (.htt) utilizados:')
     for ficheiro in project_templater.templating.htt_templates:
         print(f'|  -> {ficheiro}')
-
     print('-'*20)
     print('Feito!')
 

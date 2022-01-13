@@ -1,18 +1,22 @@
 """
-Resolver o parametro <--config>,
-para quando o ficheiro de config se encontra em outro local
+Resolver o parametro config do programa,
+para quando o ficheiro de config se encontra em um local
+que não é o mesmo dos ficheiros.
 """
+
+# Other modules
 import re
 from typing import Any
 
+# Program Modules
 from cli.arg_setup import CliArgumento
 from cli_store.store import cli_store_set
 
 
 def run_arg_config(path_config: str, **__kwargs: Any) -> None:
     """
-    Resolve o argumento para lidar com path para o ficheiro
-    de config
+    Resolve o argumento para lidar com path
+    para o ficheiro de config
 
     Args:
         path_config (str): Path ou link para o ficheiro
