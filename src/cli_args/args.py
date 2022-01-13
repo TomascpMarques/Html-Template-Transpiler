@@ -8,8 +8,9 @@ import re
 # Program Modules
 from cli.arg_setup import CliArgumento
 from cli.erros import erro_exit
-from cli_args.file_resolver import files_arg
+
 from cli_args.config_resolver import config_arg
+from cli_args.file_resolver import files_arg
 from cli_args.hotreload_resolver import hotreload_arg
 
 
