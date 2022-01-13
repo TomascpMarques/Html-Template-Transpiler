@@ -9,6 +9,7 @@ import re
 import sys
 from typing import Iterable, Any
 import asyncio
+from dataclasses import dataclass
 
 from cli.arg_setup import CliArgumento
 from cli_store.store import cli_store_get
@@ -38,24 +39,27 @@ def run_arg_hotreload(_: str, **_kwargs: Any) -> None:
         print(f'-> {entry.name}')
     print(f'{"-"*10}\n')
 
-    asyncio.run(
-        start_hotreload_process(
-            setup_file_waching(
-                watchable_files
+    try:
+        asyncio.run(
+            start_hotreload_process(
+                setup_file_waching(
+                    watchable_files
+                )
             )
         )
-    )
+    except KeyboardInterrupt:
+        print('\nA sair do modo de hot reloading...\n')
+        return
 
 
+@dataclass(slots=True, init=True)
 class MinifiedFileInfo():
     """
     Minified file information
     """
-
-    def __init__(self, name: str, path: str, hashed: int) -> None:
-        self.name = name
-        self.path = path
-        self.hashed = hashed
+    name: str       # name of the file
+    path: str       # path of the file
+    hashed: int     # hash of the file
 
 
 def setup_file_waching(files: list[os.DirEntry]) -> list[MinifiedFileInfo]:
@@ -87,7 +91,7 @@ async def run_file_watcher(file_watcher_info: list[MinifiedFileInfo]) -> None:
             with open(entry.path, 'r', encoding='utf-8') as file:
                 file_hashed_content = hash(file.read())
                 if entry.hashed != file_hashed_content:
-                    print(f'File changed «{entry.name}»; [+] RELOADING...')
+                    print(f'[+] RELOADING... File changed «{entry.name}»;')
                     entry.hashed = file_hashed_content
                     project_reload()
 
@@ -98,11 +102,15 @@ def project_reload() -> None:
     """
     Reloads the project, with the same arguments as previously ran
     """
-    os.system(
-        ' '.join(sys.orig_argv[
-            1:sys.argv.index('--hotreload')
-        ])
+    os.chdir(
+        str(cli_store_get('base_path'))
     )
+
+    reload_command = ' '.join(sys.orig_argv[
+        :sys.orig_argv.index('--hotreload')
+    ])
+
+    os.system(reload_command)
 
 
 async def start_hotreload_process(file_watcher_info: list[MinifiedFileInfo]) -> None:
@@ -122,7 +130,7 @@ files_mens_ajuda: str = \
 
 hotreload_arg: CliArgumento = CliArgumento(
     chave='hotreload',
-    descricao_argumento='Deteta mudanças nos ficheiros do projeto',
+    descricao_argumento='Deteta mudanças nos ficheiros do projeto, e reconstroi os ficheiros',
     run=run_arg_hotreload,
     erro_validacao='Não foi possivél reconstruir o projeto',
     mensagem_ajuda=files_mens_ajuda,
