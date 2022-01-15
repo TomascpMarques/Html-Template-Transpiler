@@ -12,7 +12,7 @@ import requests
 
 # Program Modules
 from cli.erros import erro_exit
-from cli_store.store import cli_store_get, cli_store_set, CLI_STORE
+from cli_store.store import cli_store_get, cli_store_set
 from file_handeling.handler import (
     HTT_FILE_EXTENSIONS,
     FileHandler,
@@ -286,6 +286,7 @@ class TemplatingFiles(FileHandler):
                             self.path_dir_entries(
                                 path=default_custom_tags_path
                         )
+
                         if default_custom_tags_entries is not None:
                             dir_entries.update(
                                 dir_entries,
@@ -316,7 +317,12 @@ class TemplatingFiles(FileHandler):
                 )
             )
 
-        return dict(zip(self.tags_custom.keys(), custom_tags))
+        return dict(
+            zip(
+                self.tags_custom.keys(),
+                custom_tags
+            )
+        )
 
     async def resolve_htt_templates(self) -> None:
         """
@@ -402,9 +408,16 @@ class HTMLGeneratorTags:
         Resolve as tags fornecidas pelo programa, para html válido
         """
 
-        if ".htt.custom" in tag and self.valid_tags_custom is None:
-            print(f"No custom tags to use for <{tag}>!")
-            return ''
+        # Checks that the current custom tag in template,
+        # is valid, as in, it exists and is referenced in the .httconfig file
+        if self.valid_tags_custom is not None:
+            if ".htt.custom" in tag and tag not in self.valid_tags_custom.keys():
+                center_space_mesure = (26 - len(tag))//2
+                print('\n=== Warning: Invalid Tag ===')
+                print(
+                    f' No custom tags to use for:\n{" "*center_space_mesure}<{tag}>!')
+                print(f'{"="*28}\n')
+                return ''
 
         # check for custom tags
         if (
@@ -599,7 +612,7 @@ class HTMLGenerator(HTMLGeneratorTags):
 
         novo_conteudo_ficheiro.append('<body>\n<main>\n')
 
-        previous_content: str | None = CLI_STORE.get('custom-tags-css')
+        previous_content: str | None = cli_store_get('custom-tags-css')
 
         # Itera sobre as secções no template
         for section_name, section in template.items():
@@ -614,7 +627,7 @@ class HTMLGenerator(HTMLGeneratorTags):
                     )
                 )
                 current_custom_tags: str | None = \
-                    CLI_STORE.get(
+                    cli_store_get(
                         'custom-tags-css'
                     )
 

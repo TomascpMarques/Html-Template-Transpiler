@@ -261,7 +261,7 @@ class FileHandler:
             file.close()
         return novo_nome_ficheiro
 
-    @ staticmethod
+    @staticmethod
     def criar_pasta(path: str) -> str:
         """
         Cria uma pasta para o output do programa
