@@ -7,6 +7,7 @@ que não é o mesmo dos ficheiros.
 # Other modules
 import os
 from typing import Any
+import requests
 
 # Program Modules
 from cli.arg_setup import CliArgumento
@@ -33,11 +34,28 @@ config_mens_ajuda: str = \
     '* Parametro: <config> | Exemplo: --config ./alguma/pasta/.httconfig <ou>' + \
     'https: // some.foo.bar/.httconfig\nO argumento têm que apontar para uma pasta válida'
 
+
+def validar_config_filepath(path: str) -> bool:
+    """
+    Valida se o ficheiro de config fornecido
+    é um path existente no sistema, ou se aponta
+    para o ficheiro de config num repositorio
+    """
+    if not os.path.exists(path):
+        exists_web: requests.Response = requests.get(
+            f'https://raw.githubusercontent.com/{path}'
+        )
+        if exists_web.status_code != 200:
+            return False
+
+    return True
+
+
 config_arg: CliArgumento = CliArgumento(
     chave='config',
     run=run_arg_config,
     descricao_argumento='O path do ficheiro de configurações do projeto',
     erro_validacao='Não foi possivél validar o valor para o argumento <config>',
     mensagem_ajuda=config_mens_ajuda,
-    validacao_arg_passado=os.path.exists,
+    validacao_arg_passado=validar_config_filepath,
 )
