@@ -396,10 +396,11 @@ def parse_htt_file(conteudo: str) -> dict[str, Any]:
                     # o que permite transformar essas listas em Dicts
                     map(
                         lambda x: x.split(' > '),
-                        valor.split(',')
+                        valor.split(':.')
                     )
                 )
-            except ValueError:
+            except ValueError as e:
+                print(f"Error: {e}")
                 error_mss = \
                     f'Valor inválido encontrado ao processar as tags fornecidas.\nValor: "{valor}"'
                 erro_exit(
