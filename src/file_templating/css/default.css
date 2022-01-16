@@ -229,3 +229,9 @@ a:hover {
   color: white;
   transform: skew(-15deg, 0);
 }
+
+img {
+  border-radius: 9px;
+  border: 4px solid gainsboro;
+  margin: .4rem;
+}

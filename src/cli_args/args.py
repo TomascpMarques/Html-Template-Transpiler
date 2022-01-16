@@ -65,7 +65,7 @@ help_arg: CliArgumento = CliArgumento(
     descricao_argumento='Argumento de ajuda com um ou mais argumentos',
     erro_validacao='O valor deve ser uma key de argumento válida',
     mensagem_ajuda=help_mens_ajuda,
-    re_validacao_tipo_valor=re.compile('[a-z]+'),
+    validacao_arg_passado=re.compile('[a-z]+'),
     func_validacao=lambda x: x.isalpha()
 )
 

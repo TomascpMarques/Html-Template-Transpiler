@@ -5,7 +5,7 @@ que não é o mesmo dos ficheiros.
 """
 
 # Other modules
-import re
+import os
 from typing import Any
 
 # Program Modules
@@ -39,8 +39,5 @@ config_arg: CliArgumento = CliArgumento(
     descricao_argumento='O path do ficheiro de configurações do projeto',
     erro_validacao='Não foi possivél validar o valor para o argumento <config>',
     mensagem_ajuda=config_mens_ajuda,
-    re_validacao_tipo_valor=re.compile(
-        r'^(~\/|\.{1,2}\/|\/)([A-z_-]+\/){1,}\.httconfig$' +
-        r'|\S+$'
-    ),
+    validacao_arg_passado=os.path.exists,
 )

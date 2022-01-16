@@ -3,7 +3,8 @@ Desenvolvimento e resolving do argumento <files> (--files)
 """
 
 # Other imports
-import re
+import os
+
 from typing import Any
 
 # Program Modules
@@ -69,7 +70,5 @@ files_arg: CliArgumento = CliArgumento(
     descricao_argumento='O ficheiro de template a transpilar',
     erro_validacao='Não foi possivél validar o valor para o argumento <files>',
     mensagem_ajuda=files_mens_ajuda,
-    re_validacao_tipo_valor=re.compile(
-        r'^(\.{1,2}\/|\~{1}\/|\/)\S+\/$|^[A-z_-]+\/'
-    ),
+    validacao_arg_passado=os.path.exists,
 )

@@ -156,7 +156,7 @@ hotreload_arg: CliArgumento = CliArgumento(
     run=run_arg_hotreload,
     erro_validacao='Não foi possivél reconstruir o projeto',
     mensagem_ajuda=files_mens_ajuda,
-    re_validacao_tipo_valor=re.compile(
+    validacao_arg_passado=re.compile(
         r'sim'
     ),
 )
